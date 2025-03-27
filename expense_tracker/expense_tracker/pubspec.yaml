@@ -1,19 +1,30 @@
 name: expense_tracker
-description: "A new Flutter project."
-publish_to: 'none'
-version: 0.1.0
+description: A comprehensive expense tracking application
+version: 1.0.0
 
 environment:
-  sdk: ^3.6.0
+  sdk: 3.6.0
 
 dependencies:
   flutter:
     sdk: flutter
+  flutter_bloc: 9.1.0
+  realm: 20.0.1
+  equatable: 2.0.7
+  flutter_svg: 2.0.17
+  intl: 0.20.2
+  fl_chart: 0.70.2
+  google_fonts: 6.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: 4.0.0
+  build_runner: 2.4.13
+  mockito: 5.4.5
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/images/

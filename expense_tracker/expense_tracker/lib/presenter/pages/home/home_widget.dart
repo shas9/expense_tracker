@@ -1,6 +1,5 @@
 import 'package:expense_tracker/data/database/realm_model.dart';
 import 'package:expense_tracker/data/repositories/expense_repository.dart';
-// import 'package:expense_tracker/data/repositories/expense_repository.dart';
 import 'package:expense_tracker/presenter/pages/home/bloc/home_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +16,6 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget> {
   final HomeBloc homeBloc = KiwiContainer().resolve<HomeBloc>();
-
   List<Wallet> walletList = [];
 
   @override
@@ -27,24 +25,28 @@ class _HomeWidgetState extends State<HomeWidget> {
         homeBloc.add(LoadHomeDataEvent());
       },
       child: Scaffold(
+        backgroundColor: Colors.black,
         appBar: AppBar(
-          title: const Text('Expense Tracker'),
+          title: const Text('Expense Tracker',
+              style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.black,
+          elevation: 0,
         ),
         body: BlocConsumer<HomeBloc, HomeState>(
           bloc: homeBloc,
           listenWhen: (previous, current) => current is HomeActionState,
           buildWhen: (previous, current) => current is! HomeActionState,
-          listener: (context, state) => {
-            if (state is WalletsLoadedState)
-              {
-                setState(() {
-                  walletList = state.wallets;
-                })
-              }
+          listener: (context, state) {
+            if (state is WalletsLoadedState) {
+              setState(() {
+                walletList = state.wallets;
+              });
+            }
           },
           builder: (context, state) {
             if (state is HomeLoadingState) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(
+                  child: CircularProgressIndicator(color: Colors.white));
             } else {
               return _buildDashboard(context);
             }
@@ -52,10 +54,20 @@ class _HomeWidgetState extends State<HomeWidget> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            // Navigate to create wallet page
             Navigator.pushNamed(context, '/create-wallet');
           },
-          child: const Icon(Icons.add),
+          backgroundColor: Colors.lightGreen,
+          elevation: 6.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(60.0),
+          ),
+          tooltip: "Create Wallet",
+          heroTag: "create_wallet_fab",
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 28.0,
+          ),
         ),
       ),
     );
@@ -63,72 +75,115 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   Widget _buildDashboard(BuildContext context) {
     if (walletList.isEmpty) {
-      return const Center(child: Text('No wallets found'));
+      return const Center(
+          child:
+              Text('No wallets found', style: TextStyle(color: Colors.white)));
     }
+
+    double totalBalance =
+        walletList.fold(0, (sum, wallet) => sum + wallet.balance);
+    final expenseRepository = KiwiContainer().resolve<ExpenseRepository>();
+    final summary = expenseRepository.getOverallFinancialSummary(walletList);
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Financial Summary',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            _buildTotalBalanceCard(totalBalance),
             const SizedBox(height: 16),
-
-            // Total Balance Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Total Balance'),
-                    Text('\$${walletList.first.balance.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ),
-
+            _buildIncomeExpenseChart(summary),
             const SizedBox(height: 16),
-
-            // Pie Chart for Expenses
-            _buildExpensePieChart(context, walletList.first.id.toString()),
-
+            _buildWalletSummaryList(),
             const SizedBox(height: 16),
-
-            // Income vs Expense Line Chart
-            _buildIncomeExpenseChart(context, walletList.first.id.toString()),
+            _buildExpensePieChart(summary),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildExpensePieChart(BuildContext context, String walletId) {
-    final expenseRepository = KiwiContainer().resolve<ExpenseRepository>();
-    final categoryExpenses = expenseRepository.getExpensesByCategory(walletId);
-
+  Widget _buildTotalBalanceCard(double totalBalance) {
     return Card(
+      color: Colors.grey[900],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Total Balance',
+                style: TextStyle(fontSize: 18, color: Colors.white)),
+            Text('\$${totalBalance.toStringAsFixed(2)}',
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.greenAccent)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWalletSummaryList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Wallets',
+            style: TextStyle(fontSize: 18, color: Colors.white)),
+        const SizedBox(height: 8),
+        Column(
+          children: walletList.map((wallet) {
+            return Card(
+              color: Colors.grey[900],
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                title: Text(wallet.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white)),
+                subtitle: Text(wallet.type,
+                    style: const TextStyle(color: Colors.white70)),
+                trailing: Text('\$${wallet.balance.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.greenAccent)),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpensePieChart(Map<String, double> summary) {
+    return Card(
+      color: Colors.grey[900],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             const Text('Expenses by Category',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 16, color: Colors.white)),
             SizedBox(
               height: 250,
-              child: categoryExpenses.isEmpty
-                  ? const Center(child: Text('No expenses yet'))
+              child: summary.isEmpty
+                  ? const Center(
+                      child: Text('No expenses yet',
+                          style: TextStyle(color: Colors.white70)))
                   : PieChart(
                       PieChartData(
-                        sections: categoryExpenses.entries.map((entry) {
+                        sections: summary.entries.map((entry) {
                           return PieChartSectionData(
                             color: _getCategoryColor(entry.key),
                             value: entry.value,
                             title: entry.key,
                             radius: 100,
+                            titleStyle: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
                           );
                         }).toList(),
                       ),
@@ -140,57 +195,32 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  Widget _buildIncomeExpenseChart(BuildContext context, String walletId) {
-    final expenseRepository = KiwiContainer().resolve<ExpenseRepository>();
-    final summary = expenseRepository.getFinancialSummary(walletId);
-
+  Widget _buildIncomeExpenseChart(Map<String, double> summary) {
     return Card(
+      color: Colors.grey[900],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             const Text('Income vs Expenses',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 16, color: Colors.white)),
             SizedBox(
               height: 250,
               child: BarChart(
                 BarChartData(
                   barGroups: [
-                    BarChartGroupData(
-                      x: 0,
-                      barRods: [
-                        BarChartRodData(
+                    BarChartGroupData(x: 0, barRods: [
+                      BarChartRodData(
                           toY: summary['income'] ?? 0,
-                          color: Colors.green,
-                        ),
-                      ],
-                    ),
-                    BarChartGroupData(
-                      x: 1,
-                      barRods: [
-                        BarChartRodData(
+                          color: Colors.greenAccent)
+                    ]),
+                    BarChartGroupData(x: 1, barRods: [
+                      BarChartRodData(
                           toY: summary['expenses'] ?? 0,
-                          color: Colors.red,
-                        ),
-                      ],
-                    ),
+                          color: Colors.redAccent)
+                    ]),
                   ],
-                  titlesData: FlTitlesData(
-                    leftTitles: const AxisTitles(),
-                    rightTitles: const AxisTitles(),
-                    topTitles: const AxisTitles(),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (double value, TitleMeta meta) {
-                          return Text(
-                            value == 0 ? 'Income' : 'Expenses',
-                            style: const TextStyle(fontSize: 12),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
                 ),
               ),
             ),
@@ -201,14 +231,17 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Color _getCategoryColor(String category) {
-    // Implement color mapping for different expense categories
-    final colorMap = {
-      'Food': Colors.blue,
-      'Transport': Colors.green,
-      'Entertainment': Colors.red,
-      'Utilities': Colors.purple,
-      'Shopping': Colors.orange,
-    };
-    return colorMap[category] ?? Colors.grey;
+    switch (category) {
+      case 'Food':
+        return Colors.orange;
+      case 'Transport':
+        return Colors.blue;
+      case 'Entertainment':
+        return Colors.purple;
+      case 'Shopping':
+        return Colors.pink;
+      default:
+        return Colors.grey;
+    }
   }
 }

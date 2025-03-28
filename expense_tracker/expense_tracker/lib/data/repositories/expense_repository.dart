@@ -14,6 +14,7 @@ abstract class ExpenseRepository {
   List<Expense> getExpensesByWallet(String walletId);
   Map<String, double> getFinancialSummary(String walletId);
   Map<String, double> getExpensesByCategory(String walletId);
+  Map<String, double> getOverallFinancialSummary(List<Wallet> wallets);
 }
 
 class ExpenseRepositoryImpl extends ExpenseRepository {
@@ -83,7 +84,35 @@ class ExpenseRepositoryImpl extends ExpenseRepository {
     };
   }
 
+  // Get overall financial summary across all wallets
+@override
+  Map<String, double> getOverallFinancialSummary(List<Wallet> wallets) {
+  double totalIncome = 0;
+  double totalExpenses = 0;
+  final categorySummary = <String, double>{};
+
+  for (var wallet in wallets) {
+    final walletSummary = getFinancialSummary(wallet.id.hexString);
+    totalIncome += walletSummary['income'] ?? 0;
+    totalExpenses += walletSummary['expenses'] ?? 0;
+
+    final walletCategories = getExpensesByCategory(wallet.id.hexString);
+    for (var category in walletCategories.keys) {
+      categorySummary[category] = 
+        (categorySummary[category] ?? 0) + walletCategories[category]!;
+    }
+  }
+
+  return {
+    'income': totalIncome,
+    'expenses': totalExpenses,
+    ...categorySummary,
+  };
+}
+
+
   // Get expenses grouped by category
+  @override
   Map<String, double> getExpensesByCategory(String walletId) {
     final expenses = getExpensesByWallet(walletId)
       .where((e) => !e.isIncome)

@@ -14,112 +14,155 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _balanceController = TextEditingController();
-  
   String _selectedWalletType = 'Cash';
   final List<String> _walletTypes = [
-    'Cash', 
-    'Bank Account', 
-    'Credit Card', 
+    'Cash',
+    'Bank Account',
+    'Credit Card',
     'Mobile Banking'
   ];
 
-  final CreateWalletBloc createWalletBloc = KiwiContainer().resolve<CreateWalletBloc>();
+  late final CreateWalletBloc _createWalletBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _createWalletBloc = KiwiContainer().resolve<CreateWalletBloc>();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create New Wallet'),
-      ),
-      body: BlocConsumer<CreateWalletBloc, CreateWalletState>(
-        bloc: createWalletBloc,
-        listenWhen: (previous, current) => current is CreateWalletActionState,
-        buildWhen: (previous, current) => current is! CreateWalletActionState,
-        listener: (context, state) {
-          if (state is CreateWalletCloseEventState) {
-            // Navigate back to home or show success message
-            Navigator.pop(context);
-          }
-          if (state is DisplayErrorMessage) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage)),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return BlocProvider.value(
+      value: _createWalletBloc,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Create New Wallet'),
+          backgroundColor: colorScheme.surfaceContainerHighest,
+        ),
+        body: BlocConsumer<CreateWalletBloc, CreateWalletState>(
+          listenWhen: (previous, current) => current is CreateWalletActionState,
+          buildWhen: (previous, current) => current is! CreateWalletActionState,
+          listener: (context, state) {
+            if (state is CreateWalletCloseEventState) {
+              Navigator.pop(context);
+            } else if (state is DisplayErrorMessage) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.errorMessage)),
+              );
+            }
+          },
+          builder: (context, state) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTextField(_nameController, 'Wallet Name',
+                          'Enter wallet name', colorScheme),
+                      const SizedBox(height: 16),
+                      _buildTextField(_balanceController, 'Initial Balance',
+                          'Enter initial balance', colorScheme,
+                          isNumber: true),
+                      const SizedBox(height: 16),
+                      _buildCustomDropdown(colorScheme),
+                      const Spacer(),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _createWallet,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: Colors.lightGreen,
+                          ),
+                          child: Text(
+                            'Create Wallet',
+                            style: TextStyle(
+                                color: colorScheme.onSurface, fontSize: 16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             );
-          }
-        },
-        builder: (context, state) {
-          return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Wallet Name',
-                    hintText: 'Enter wallet name',
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label,
+      String hint, ColorScheme colorScheme,
+      {bool isNumber = false}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        filled: true,
+        fillColor: colorScheme.surface,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter $label';
+        }
+        if (isNumber && double.tryParse(value) == null) {
+          return 'Please enter a valid number';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildCustomDropdown(ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedWalletType,
+          isExpanded: true,
+          icon: Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),
+          dropdownColor: colorScheme.surface,
+          items: _walletTypes
+              .map(
+                (type) => DropdownMenuItem(
+                  value: type,
+                  child: Text(
+                    type,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a wallet name';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _balanceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Initial Balance',
-                    hintText: 'Enter initial balance',
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an initial balance';
-                    }
-                    if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedWalletType,
-                  decoration: const InputDecoration(
-                    labelText: 'Wallet Type',
-                  ),
-                  items: _walletTypes.map((type) {
-                    return DropdownMenuItem(
-                      value: type,
-                      child: Text(type),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedWalletType = value!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _createWallet,
-                  child: const Text('Create Wallet'),
-                ),
-              ],
-            ),
-          ),
-        );
-        },
+              )
+              .toList(),
+          onChanged: (value) {
+            setState(() => _selectedWalletType = value!);
+          },
+        ),
       ),
     );
   }
 
   void _createWallet() {
     if (_formKey.currentState!.validate()) {
-      // Dispatch create wallet event
-      createWalletBloc.add(
+      _createWalletBloc.add(
         CreateWalletRequestedEvent(
           name: _nameController.text,
           type: _selectedWalletType,

@@ -15,6 +15,9 @@ dependencies:
   intl: 0.20.2
   fl_chart: 0.70.2
   google_fonts: 6.2.1
+  shared_preferences: 2.2.2
+  kiwi: 5.0.1
+  focus_detector: 2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -27,4 +30,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/
-    - assets/images/
+    - assets/images/onboarding/

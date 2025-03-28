@@ -1,15 +1,16 @@
-import 'package:expense_tracker/presenter/pages/wallet_bloc.dart';
+import 'package:expense_tracker/presenter/pages/create_wallet/bloc/create_wallet_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kiwi/kiwi.dart';
 
-class CreateWalletPage extends StatefulWidget {
-  const CreateWalletPage({Key? key}) : super(key: key);
+class CreateWalletWidget extends StatefulWidget {
+  const CreateWalletWidget({super.key});
 
   @override
-  _CreateWalletPageState createState() => _CreateWalletPageState();
+  State<CreateWalletWidget> createState() => _CreateWalletWidgetState();
 }
 
-class _CreateWalletPageState extends State<CreateWalletPage> {
+class _CreateWalletWidgetState extends State<CreateWalletWidget> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _balanceController = TextEditingController();
@@ -22,25 +23,31 @@ class _CreateWalletPageState extends State<CreateWalletPage> {
     'Mobile Banking'
   ];
 
+  final CreateWalletBloc createWalletBloc = KiwiContainer().resolve<CreateWalletBloc>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create New Wallet'),
       ),
-      body: BlocListener<WalletBloc, WalletState>(
+      body: BlocConsumer<CreateWalletBloc, CreateWalletState>(
+        bloc: createWalletBloc,
+        listenWhen: (previous, current) => current is CreateWalletActionState,
+        buildWhen: (previous, current) => current is! CreateWalletActionState,
         listener: (context, state) {
-          if (state is WalletsLoadedState) {
+          if (state is CreateWalletCloseEventState) {
             // Navigate back to home or show success message
             Navigator.pop(context);
           }
-          if (state is WalletErrorState) {
+          if (state is DisplayErrorMessage) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
+              SnackBar(content: Text(state.errorMessage)),
             );
           }
         },
-        child: Padding(
+        builder: (context, state) {
+          return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
@@ -103,7 +110,8 @@ class _CreateWalletPageState extends State<CreateWalletPage> {
               ],
             ),
           ),
-        ),
+        );
+        },
       ),
     );
   }
@@ -111,8 +119,8 @@ class _CreateWalletPageState extends State<CreateWalletPage> {
   void _createWallet() {
     if (_formKey.currentState!.validate()) {
       // Dispatch create wallet event
-      context.read<WalletBloc>().add(
-        CreateWalletEvent(
+      createWalletBloc.add(
+        CreateWalletRequestedEvent(
           name: _nameController.text,
           type: _selectedWalletType,
           initialBalance: double.parse(_balanceController.text),

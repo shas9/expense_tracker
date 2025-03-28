@@ -1,12 +1,30 @@
 import 'package:expense_tracker/data/database/realm_model.dart';
 import 'package:realm/realm.dart';
 
-class ExpenseRepository {
+abstract class ExpenseRepository {
+  Expense addTransaction(
+    String title, 
+    double amount, 
+    DateTime date, 
+    String category, 
+    String walletId,
+    bool isIncome
+  );
+
+  List<Expense> getExpensesByWallet(String walletId);
+  Map<String, double> getFinancialSummary(String walletId);
+  Map<String, double> getExpensesByCategory(String walletId);
+}
+
+class ExpenseRepositoryImpl extends ExpenseRepository {
   final Realm realm;
 
-  ExpenseRepository(this.realm);
+  ExpenseRepositoryImpl({
+    required this.realm
+  });
 
   // Add an expense or income
+  @override
   Expense addTransaction(
     String title, 
     double amount, 
@@ -39,11 +57,13 @@ class ExpenseRepository {
   }
 
   // Get expenses for a specific wallet
+  @override
   List<Expense> getExpensesByWallet(String walletId) {
     return realm.query<Expense>('walletId == "$walletId"').toList();
   }
 
   // Get total income and expenses
+  @override
   Map<String, double> getFinancialSummary(String walletId) {
     final expenses = getExpensesByWallet(walletId);
     

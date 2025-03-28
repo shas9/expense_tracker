@@ -1,12 +1,21 @@
 import 'package:expense_tracker/data/database/realm_model.dart';
 import 'package:realm/realm.dart';
 
-class WalletRepository {
+abstract class WalletRepository {
+  Wallet createWallet(String name, String type, double initialBalance);
+  List<Wallet> getAllWallets();
+  void deleteWallet(ObjectId walletId);
+}
+
+class WalletRepositoryImpl extends WalletRepository {
   final Realm realm;
 
-  WalletRepository(this.realm);
+  WalletRepositoryImpl({
+    required this.realm
+  });
 
   // Create a new wallet
+  @override
   Wallet createWallet(String name, String type, double initialBalance) {
     final wallet = Wallet(
       ObjectId(), 
@@ -23,6 +32,7 @@ class WalletRepository {
   }
 
   // Get all wallets
+  @override
   List<Wallet> getAllWallets() {
     return realm.all<Wallet>().toList();
   }
@@ -38,6 +48,7 @@ class WalletRepository {
   }
 
   // Delete a wallet
+  @override
   void deleteWallet(ObjectId walletId) {
     realm.write(() {
       final wallet = realm.find<Wallet>(walletId);

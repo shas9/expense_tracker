@@ -33,7 +33,6 @@ class AppTheme {
     colorScheme: ColorScheme.dark(
       primary: Colors.blue[700]!,
       secondary: Colors.blue[400]!,
-      background: const Color(0xFF121212),
       surface: const Color(0xFF1E1E1E),
     ),
   );

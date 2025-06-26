@@ -29,8 +29,12 @@ class _HomeWidgetState extends State<HomeWidget> {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          title: const Text('Expense Tracker',
-              style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Expense Tracker',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
           backgroundColor: Colors.black,
           elevation: 0,
         ),
@@ -146,7 +150,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               onTap: () {
                 AppRouter.navigate(
                   RouteNames.createExpense,
-                  queryParameters: {AppRouter.walletIdKey: wallet.id},
+                  pathParameters: {AppRouter.walletIdKey: '${wallet.id}'},
                 );
               },
               child: Card(
@@ -180,14 +184,23 @@ class _HomeWidgetState extends State<HomeWidget> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const Text('Expenses by Category',
-                style: TextStyle(fontSize: 16, color: Colors.white)),
+            const Text(
+              'Expenses by Category',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+            ),
             SizedBox(
               height: 250,
               child: summary.isEmpty
                   ? const Center(
-                      child: Text('No expenses yet',
-                          style: TextStyle(color: Colors.white70)))
+                      child: Text(
+                      'No expenses yet',
+                      style: TextStyle(
+                        color: Colors.white70,
+                      ),
+                    ))
                   : PieChart(
                       PieChartData(
                         sections: summary.entries.map((entry) {
@@ -197,8 +210,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                             title: entry.key,
                             radius: 100,
                             titleStyle: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           );
                         }).toList(),
                       ),

@@ -63,12 +63,20 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildTextField(_nameController, 'Wallet Name',
-                          'Enter wallet name', colorScheme),
+                      _buildTextField(
+                        _nameController,
+                        'Wallet Name',
+                        'Enter wallet name',
+                        colorScheme,
+                      ),
                       const SizedBox(height: 16),
-                      _buildTextField(_balanceController, 'Initial Balance',
-                          'Enter initial balance', colorScheme,
-                          isNumber: true),
+                      _buildTextField(
+                        _balanceController,
+                        'Initial Balance',
+                        'Enter initial balance',
+                        colorScheme,
+                        isNumber: true,
+                      ),
                       const SizedBox(height: 16),
                       _buildCustomDropdown(colorScheme),
                       const Spacer(),
@@ -100,9 +108,13 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label,
-      String hint, ColorScheme colorScheme,
-      {bool isNumber = false}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    String hint,
+    ColorScheme colorScheme, {
+    bool isNumber = false,
+  }) {
     return TextFormField(
       controller: controller,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,

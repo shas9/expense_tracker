@@ -1,19 +1,22 @@
+import 'package:expense_tracker/common/utilities/id_generator.dart';
 import 'package:expense_tracker/data/database/realm_model.dart';
+import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 
 abstract class ExpenseRepository {
   Expense addTransaction(
     String title, 
     double amount, 
+    String description,
     DateTime date, 
     String category, 
-    String walletId,
+    int walletId,
     bool isIncome
   );
 
-  List<Expense> getExpensesByWallet(String walletId);
-  Map<String, double> getFinancialSummary(String walletId);
-  Map<String, double> getExpensesByCategory(String walletId);
+  List<Expense> getExpensesByWallet(int walletId);
+  Map<String, double> getFinancialSummary(int walletId);
+  Map<String, double> getExpensesByCategory(int walletId);
   Map<String, double> getOverallFinancialSummary(List<Wallet> wallets);
 }
 
@@ -29,43 +32,49 @@ class ExpenseRepositoryImpl extends ExpenseRepository {
   Expense addTransaction(
     String title, 
     double amount, 
-    DateTime date, 
+    String description, 
+    DateTime date,
     String category, 
-    String walletId,
-    bool isIncome
+    int walletId,
+    bool isIncome,
   ) {
-    final expense = Expense(
-      ObjectId(),
-      title,
-      amount,
-      date,
-      category,
-      walletId,
-      isIncome
-    );
+    try {
+      final expense = Expense(
+        IdGenerator.generateId(),
+        title,
+        amount,
+        description,
+        date,
+        category,
+        walletId,
+        isIncome
+      );
 
-    realm.write(() {
-      realm.add(expense);
-      
-      // Update wallet balance
-      final wallet = realm.query<Wallet>('id == $walletId').firstOrNull;
-      if (wallet != null) {
-        wallet.balance += (isIncome ? amount : -amount);
-      }
-    });
+      realm.write(() {
+          realm.add(expense);
+          
+          final wallet = realm.query<Wallet>('id == \$0', [walletId]).firstOrNull;
+          if (wallet != null) {
+              wallet.balance += (isIncome ? amount : -amount);
+          }
+      });
 
     return expense;
+    } catch (e) {
+      debugPrint('Error adding transaction: $e');
+      throw Exception('Failed to add transaction: $e');
+    }
   }
 
   // Get expenses for a specific wallet
   @override
-  List<Expense> getExpensesByWallet(String walletId) {
+  List<Expense> getExpensesByWallet(int walletId) {
     return realm.query<Expense>('walletId == "$walletId"').toList();
   }
 
   // Get total income and expenses
   @override
-  Map<String, double> getFinancialSummary(String walletId) {
+  Map<String, double> getFinancialSummary(int walletId) {
     final expenses = getExpensesByWallet(walletId);
     
     double totalIncome = expenses
@@ -92,11 +101,11 @@ class ExpenseRepositoryImpl extends ExpenseRepository {
   final categorySummary = <String, double>{};
 
   for (var wallet in wallets) {
-    final walletSummary = getFinancialSummary(wallet.id.hexString);
+    final walletSummary = getFinancialSummary(wallet.id);
     totalIncome += walletSummary['income'] ?? 0;
     totalExpenses += walletSummary['expenses'] ?? 0;
 
-    final walletCategories = getExpensesByCategory(wallet.id.hexString);
+    final walletCategories = getExpensesByCategory(wallet.id);
     for (var category in walletCategories.keys) {
       categorySummary[category] = 
         (categorySummary[category] ?? 0) + walletCategories[category]!;
@@ -113,7 +122,7 @@ class ExpenseRepositoryImpl extends ExpenseRepository {
 
   // Get expenses grouped by category
   @override
-  Map<String, double> getExpensesByCategory(String walletId) {
+  Map<String, double> getExpensesByCategory(int walletId) {
     final expenses = getExpensesByWallet(walletId)
       .where((e) => !e.isIncome)
       .toList();

@@ -1,3 +1,5 @@
+import 'package:expense_tracker/core/router/app_router.dart';
+import 'package:expense_tracker/core/router/route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -150,7 +152,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboardingComplete', true);
       if (!context.mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
+      AppRouter.go(RouteNames.home);
     }
   }
 }

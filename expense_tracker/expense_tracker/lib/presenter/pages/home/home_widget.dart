@@ -1,3 +1,5 @@
+import 'package:expense_tracker/core/router/app_router.dart';
+import 'package:expense_tracker/core/router/route_names.dart';
 import 'package:expense_tracker/data/database/realm_model.dart';
 import 'package:expense_tracker/data/repositories/expense_repository.dart';
 import 'package:expense_tracker/presenter/pages/home/bloc/home_bloc.dart';
@@ -54,7 +56,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/create-wallet');
+            AppRouter.navigate(RouteNames.createWallet);
           },
           backgroundColor: Colors.lightGreen,
           elevation: 6.0,
@@ -130,25 +132,38 @@ class _HomeWidgetState extends State<HomeWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Wallets',
-            style: TextStyle(fontSize: 18, color: Colors.white)),
+        const Text(
+          'Wallets',
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
         const SizedBox(height: 8),
         Column(
           children: walletList.map((wallet) {
-            return Card(
-              color: Colors.grey[900],
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                title: Text(wallet.name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white)),
-                subtitle: Text(wallet.type,
-                    style: const TextStyle(color: Colors.white70)),
-                trailing: Text('\$${wallet.balance.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.greenAccent)),
+            return InkWell(
+              onTap: () {
+                AppRouter.navigate(
+                  RouteNames.createExpense,
+                  queryParameters: {AppRouter.walletIdKey: wallet.id},
+                );
+              },
+              child: Card(
+                color: Colors.grey[900],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  title: Text(wallet.name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white)),
+                  subtitle: Text(wallet.type,
+                      style: const TextStyle(color: Colors.white70)),
+                  trailing: Text('\$${wallet.balance.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.greenAccent)),
+                ),
               ),
             );
           }).toList(),

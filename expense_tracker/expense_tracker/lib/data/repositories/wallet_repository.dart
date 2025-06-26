@@ -1,10 +1,13 @@
+import 'package:expense_tracker/common/utilities/id_generator.dart';
 import 'package:expense_tracker/data/database/realm_model.dart';
 import 'package:realm/realm.dart';
 
 abstract class WalletRepository {
   Wallet createWallet(String name, String type, double initialBalance);
   List<Wallet> getAllWallets();
-  void deleteWallet(ObjectId walletId);
+  void deleteWallet(int walletId);
+  void updateWalletBalance(int walletId, double amount);
+  Wallet? getWalletById(int walletId);
 }
 
 class WalletRepositoryImpl extends WalletRepository {
@@ -18,7 +21,7 @@ class WalletRepositoryImpl extends WalletRepository {
   @override
   Wallet createWallet(String name, String type, double initialBalance) {
     final wallet = Wallet(
-      ObjectId(), 
+      IdGenerator.generateId(), 
       name, 
       type, 
       initialBalance
@@ -38,7 +41,8 @@ class WalletRepositoryImpl extends WalletRepository {
   }
 
   // Update wallet balance
-  void updateWalletBalance(ObjectId walletId, double amount) {
+  @override
+  void updateWalletBalance(int walletId, double amount) {
     realm.write(() {
       final wallet = realm.find<Wallet>(walletId);
       if (wallet != null) {
@@ -49,7 +53,7 @@ class WalletRepositoryImpl extends WalletRepository {
 
   // Delete a wallet
   @override
-  void deleteWallet(ObjectId walletId) {
+  void deleteWallet(int walletId) {
     realm.write(() {
       final wallet = realm.find<Wallet>(walletId);
       if (wallet != null) {
@@ -59,7 +63,8 @@ class WalletRepositoryImpl extends WalletRepository {
   }
 
   // Get wallet by ID as string
-  Wallet? getWalletById(String walletId) {
+  @override
+  Wallet? getWalletById(int walletId) {
     return realm.query<Wallet>('id == $walletId').firstOrNull;
   }
 }

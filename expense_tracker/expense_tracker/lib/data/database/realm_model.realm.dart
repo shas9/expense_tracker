@@ -9,7 +9,7 @@ part of 'realm_model.dart';
 // ignore_for_file: type=lint
 class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
   Wallet(
-    ObjectId id,
+    int id,
     String name,
     String type,
     double balance,
@@ -23,9 +23,9 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
   Wallet._();
 
   @override
-  ObjectId get id => RealmObjectBase.get<ObjectId>(this, 'id') as ObjectId;
+  int get id => RealmObjectBase.get<int>(this, 'id') as int;
   @override
-  set id(ObjectId value) => RealmObjectBase.set(this, 'id', value);
+  set id(int value) => RealmObjectBase.set(this, 'id', value);
 
   @override
   String get name => RealmObjectBase.get<String>(this, 'name') as String;
@@ -86,7 +86,7 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Wallet._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Wallet, 'Wallet', [
-      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('type', RealmPropertyType.string),
       SchemaProperty('balance', RealmPropertyType.double),
@@ -99,17 +99,19 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
 
 class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
   Expense(
-    ObjectId id,
+    int id,
     String title,
     double amount,
+    String description,
     DateTime date,
     String category,
-    String walletId,
+    int walletId,
     bool isIncome,
   ) {
     RealmObjectBase.set(this, 'id', id);
     RealmObjectBase.set(this, 'title', title);
     RealmObjectBase.set(this, 'amount', amount);
+    RealmObjectBase.set(this, 'description', description);
     RealmObjectBase.set(this, 'date', date);
     RealmObjectBase.set(this, 'category', category);
     RealmObjectBase.set(this, 'walletId', walletId);
@@ -119,9 +121,9 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
   Expense._();
 
   @override
-  ObjectId get id => RealmObjectBase.get<ObjectId>(this, 'id') as ObjectId;
+  int get id => RealmObjectBase.get<int>(this, 'id') as int;
   @override
-  set id(ObjectId value) => RealmObjectBase.set(this, 'id', value);
+  set id(int value) => RealmObjectBase.set(this, 'id', value);
 
   @override
   String get title => RealmObjectBase.get<String>(this, 'title') as String;
@@ -132,6 +134,13 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
   double get amount => RealmObjectBase.get<double>(this, 'amount') as double;
   @override
   set amount(double value) => RealmObjectBase.set(this, 'amount', value);
+
+  @override
+  String get description =>
+      RealmObjectBase.get<String>(this, 'description') as String;
+  @override
+  set description(String value) =>
+      RealmObjectBase.set(this, 'description', value);
 
   @override
   DateTime get date => RealmObjectBase.get<DateTime>(this, 'date') as DateTime;
@@ -145,10 +154,9 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
   set category(String value) => RealmObjectBase.set(this, 'category', value);
 
   @override
-  String get walletId =>
-      RealmObjectBase.get<String>(this, 'walletId') as String;
+  int get walletId => RealmObjectBase.get<int>(this, 'walletId') as int;
   @override
-  set walletId(String value) => RealmObjectBase.set(this, 'walletId', value);
+  set walletId(int value) => RealmObjectBase.set(this, 'walletId', value);
 
   @override
   bool get isIncome => RealmObjectBase.get<bool>(this, 'isIncome') as bool;
@@ -171,6 +179,7 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
       'id': id.toEJson(),
       'title': title.toEJson(),
       'amount': amount.toEJson(),
+      'description': description.toEJson(),
       'date': date.toEJson(),
       'category': category.toEJson(),
       'walletId': walletId.toEJson(),
@@ -186,6 +195,7 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
         'id': EJsonValue id,
         'title': EJsonValue title,
         'amount': EJsonValue amount,
+        'description': EJsonValue description,
         'date': EJsonValue date,
         'category': EJsonValue category,
         'walletId': EJsonValue walletId,
@@ -195,6 +205,7 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
           fromEJson(id),
           fromEJson(title),
           fromEJson(amount),
+          fromEJson(description),
           fromEJson(date),
           fromEJson(category),
           fromEJson(walletId),
@@ -208,12 +219,13 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Expense._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Expense, 'Expense', [
-      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('title', RealmPropertyType.string),
       SchemaProperty('amount', RealmPropertyType.double),
+      SchemaProperty('description', RealmPropertyType.string),
       SchemaProperty('date', RealmPropertyType.timestamp),
       SchemaProperty('category', RealmPropertyType.string),
-      SchemaProperty('walletId', RealmPropertyType.string),
+      SchemaProperty('walletId', RealmPropertyType.int),
       SchemaProperty('isIncome', RealmPropertyType.bool),
     ]);
   }();
@@ -225,7 +237,7 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
 class Category extends _Category
     with RealmEntity, RealmObjectBase, RealmObject {
   Category(
-    ObjectId id,
+    int id,
     String name,
     String icon,
   ) {
@@ -237,9 +249,9 @@ class Category extends _Category
   Category._();
 
   @override
-  ObjectId get id => RealmObjectBase.get<ObjectId>(this, 'id') as ObjectId;
+  int get id => RealmObjectBase.get<int>(this, 'id') as int;
   @override
-  set id(ObjectId value) => RealmObjectBase.set(this, 'id', value);
+  set id(int value) => RealmObjectBase.set(this, 'id', value);
 
   @override
   String get name => RealmObjectBase.get<String>(this, 'name') as String;
@@ -292,7 +304,7 @@ class Category extends _Category
     RealmObjectBase.registerFactory(Category._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Category, 'Category', [
-      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('icon', RealmPropertyType.string),
     ]);

@@ -8,9 +8,9 @@ final class HomeActionState extends HomeState {}
 final class HomeLoadingState extends HomeState {}
 final class HomeLoadedState extends HomeState {}
 
-final class WalletsLoadedState extends HomeActionState {
-  final List<Wallet> wallets;
-  WalletsLoadedState(this.wallets);
+final class UiModelLoadedState extends HomeActionState {
+  final HomeDashboardUiModel uiModel;
+  UiModelLoadedState(this.uiModel);
 }
 
 final class DisplayErrorMessage extends HomeActionState {

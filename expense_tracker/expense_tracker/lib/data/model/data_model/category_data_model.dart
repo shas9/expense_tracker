@@ -13,7 +13,7 @@ class CategoryDataModel {
   }) : id = id ?? IdGenerator.generateId();
 
   // Convert Realm Category to CategoryDataModel
-  factory CategoryDataModel.fromRealm(Category category) {
+  factory CategoryDataModel.fromRealm(CategoryEntity category) {
     return CategoryDataModel(
       id: category.id,
       name: category.name,
@@ -22,8 +22,8 @@ class CategoryDataModel {
   }
 
   // Convert CategoryDataModel back to Realm Category
-  Category toRealmCategory() {
-    return Category(id, name, icon);
+  CategoryEntity toRealmCategory() {
+    return CategoryEntity(id, name, icon);
   }
 
   @override

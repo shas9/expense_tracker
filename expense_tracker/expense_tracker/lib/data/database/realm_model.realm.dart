@@ -7,8 +7,9 @@ part of 'realm_model.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
-class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
-  Wallet(
+class WalletEntity extends _WalletEntity
+    with RealmEntity, RealmObjectBase, RealmObject {
+  WalletEntity(
     int id,
     String name,
     String type,
@@ -20,7 +21,7 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'balance', balance);
   }
 
-  Wallet._();
+  WalletEntity._();
 
   @override
   int get id => RealmObjectBase.get<int>(this, 'id') as int;
@@ -43,15 +44,16 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
   set balance(double value) => RealmObjectBase.set(this, 'balance', value);
 
   @override
-  Stream<RealmObjectChanges<Wallet>> get changes =>
-      RealmObjectBase.getChanges<Wallet>(this);
+  Stream<RealmObjectChanges<WalletEntity>> get changes =>
+      RealmObjectBase.getChanges<WalletEntity>(this);
 
   @override
-  Stream<RealmObjectChanges<Wallet>> changesFor([List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<Wallet>(this, keyPaths);
+  Stream<RealmObjectChanges<WalletEntity>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<WalletEntity>(this, keyPaths);
 
   @override
-  Wallet freeze() => RealmObjectBase.freezeObject<Wallet>(this);
+  WalletEntity freeze() => RealmObjectBase.freezeObject<WalletEntity>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -62,8 +64,8 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
     };
   }
 
-  static EJsonValue _toEJson(Wallet value) => value.toEJson();
-  static Wallet _fromEJson(EJsonValue ejson) {
+  static EJsonValue _toEJson(WalletEntity value) => value.toEJson();
+  static WalletEntity _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
@@ -72,7 +74,7 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
         'type': EJsonValue type,
         'balance': EJsonValue balance,
       } =>
-        Wallet(
+        WalletEntity(
           fromEJson(id),
           fromEJson(name),
           fromEJson(type),
@@ -83,9 +85,10 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
   }
 
   static final schema = () {
-    RealmObjectBase.registerFactory(Wallet._);
+    RealmObjectBase.registerFactory(WalletEntity._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Wallet, 'Wallet', [
+    return const SchemaObject(
+        ObjectType.realmObject, WalletEntity, 'WalletEntity', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('type', RealmPropertyType.string),
@@ -97,8 +100,9 @@ class Wallet extends _Wallet with RealmEntity, RealmObjectBase, RealmObject {
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
-  Expense(
+class TransactionEntity extends _TransactionEntity
+    with RealmEntity, RealmObjectBase, RealmObject {
+  TransactionEntity(
     int id,
     String title,
     double amount,
@@ -118,7 +122,7 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'isIncome', isIncome);
   }
 
-  Expense._();
+  TransactionEntity._();
 
   @override
   int get id => RealmObjectBase.get<int>(this, 'id') as int;
@@ -164,15 +168,17 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
   set isIncome(bool value) => RealmObjectBase.set(this, 'isIncome', value);
 
   @override
-  Stream<RealmObjectChanges<Expense>> get changes =>
-      RealmObjectBase.getChanges<Expense>(this);
+  Stream<RealmObjectChanges<TransactionEntity>> get changes =>
+      RealmObjectBase.getChanges<TransactionEntity>(this);
 
   @override
-  Stream<RealmObjectChanges<Expense>> changesFor([List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<Expense>(this, keyPaths);
+  Stream<RealmObjectChanges<TransactionEntity>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<TransactionEntity>(this, keyPaths);
 
   @override
-  Expense freeze() => RealmObjectBase.freezeObject<Expense>(this);
+  TransactionEntity freeze() =>
+      RealmObjectBase.freezeObject<TransactionEntity>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -187,8 +193,8 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
     };
   }
 
-  static EJsonValue _toEJson(Expense value) => value.toEJson();
-  static Expense _fromEJson(EJsonValue ejson) {
+  static EJsonValue _toEJson(TransactionEntity value) => value.toEJson();
+  static TransactionEntity _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
@@ -201,7 +207,7 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
         'walletId': EJsonValue walletId,
         'isIncome': EJsonValue isIncome,
       } =>
-        Expense(
+        TransactionEntity(
           fromEJson(id),
           fromEJson(title),
           fromEJson(amount),
@@ -216,9 +222,10 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
   }
 
   static final schema = () {
-    RealmObjectBase.registerFactory(Expense._);
+    RealmObjectBase.registerFactory(TransactionEntity._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Expense, 'Expense', [
+    return const SchemaObject(
+        ObjectType.realmObject, TransactionEntity, 'TransactionEntity', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('title', RealmPropertyType.string),
       SchemaProperty('amount', RealmPropertyType.double),
@@ -234,9 +241,9 @@ class Expense extends _Expense with RealmEntity, RealmObjectBase, RealmObject {
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class Category extends _Category
+class CategoryEntity extends _CategoryEntity
     with RealmEntity, RealmObjectBase, RealmObject {
-  Category(
+  CategoryEntity(
     int id,
     String name,
     String icon,
@@ -246,7 +253,7 @@ class Category extends _Category
     RealmObjectBase.set(this, 'icon', icon);
   }
 
-  Category._();
+  CategoryEntity._();
 
   @override
   int get id => RealmObjectBase.get<int>(this, 'id') as int;
@@ -264,15 +271,16 @@ class Category extends _Category
   set icon(String value) => RealmObjectBase.set(this, 'icon', value);
 
   @override
-  Stream<RealmObjectChanges<Category>> get changes =>
-      RealmObjectBase.getChanges<Category>(this);
+  Stream<RealmObjectChanges<CategoryEntity>> get changes =>
+      RealmObjectBase.getChanges<CategoryEntity>(this);
 
   @override
-  Stream<RealmObjectChanges<Category>> changesFor([List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<Category>(this, keyPaths);
+  Stream<RealmObjectChanges<CategoryEntity>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<CategoryEntity>(this, keyPaths);
 
   @override
-  Category freeze() => RealmObjectBase.freezeObject<Category>(this);
+  CategoryEntity freeze() => RealmObjectBase.freezeObject<CategoryEntity>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -282,8 +290,8 @@ class Category extends _Category
     };
   }
 
-  static EJsonValue _toEJson(Category value) => value.toEJson();
-  static Category _fromEJson(EJsonValue ejson) {
+  static EJsonValue _toEJson(CategoryEntity value) => value.toEJson();
+  static CategoryEntity _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
@@ -291,7 +299,7 @@ class Category extends _Category
         'name': EJsonValue name,
         'icon': EJsonValue icon,
       } =>
-        Category(
+        CategoryEntity(
           fromEJson(id),
           fromEJson(name),
           fromEJson(icon),
@@ -301,9 +309,10 @@ class Category extends _Category
   }
 
   static final schema = () {
-    RealmObjectBase.registerFactory(Category._);
+    RealmObjectBase.registerFactory(CategoryEntity._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Category, 'Category', [
+    return const SchemaObject(
+        ObjectType.realmObject, CategoryEntity, 'CategoryEntity', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('icon', RealmPropertyType.string),

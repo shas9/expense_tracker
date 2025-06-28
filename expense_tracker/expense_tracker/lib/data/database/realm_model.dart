@@ -3,7 +3,7 @@ import 'package:realm/realm.dart';
 part 'realm_model.realm.dart';
 
 @RealmModel()
-class _Wallet {
+class _WalletEntity {
   @PrimaryKey()
   late int id;
   late String name;
@@ -12,7 +12,7 @@ class _Wallet {
 }
 
 @RealmModel()
-class _Expense {
+class _TransactionEntity {
   @PrimaryKey()
   late int id;
   late String title;
@@ -25,7 +25,7 @@ class _Expense {
 }
 
 @RealmModel()
-class _Category {
+class _CategoryEntity {
   @PrimaryKey()
   late int id;
   late String name;

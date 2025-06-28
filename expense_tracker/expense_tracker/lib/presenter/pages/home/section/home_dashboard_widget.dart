@@ -1,4 +1,4 @@
-import 'package:expense_tracker/data/database/realm_model.dart';
+import 'package:expense_tracker/data/model/ui_model/home_dashboard_ui_model.dart';
 import 'package:expense_tracker/presenter/pages/home/section/home_expense_summary_card.dart';
 import 'package:expense_tracker/presenter/pages/home/section/home_income_expense_card.dart';
 import 'package:expense_tracker/presenter/pages/home/section/home_total_balance_card.dart';
@@ -6,19 +6,17 @@ import 'package:expense_tracker/presenter/pages/home/section/wallet_summary_list
 import 'package:flutter/material.dart';
 
 class HomeDashboardWidget extends StatelessWidget {
-  final List<Wallet> walletList;
-  final Map<String, double> overallFinancialSummary;
+  final HomeDashboardUiModel uiModel;
   const HomeDashboardWidget({
     super.key,
-    required this.walletList,
-    required this.overallFinancialSummary,
+    required this.uiModel,
   });
 
   final String noWalletsMessage = 'No wallets found';
 
   @override
   Widget build(BuildContext context) {
-    if (walletList.isEmpty) {
+    if (uiModel.walletModelList.isEmpty) {
       return Center(
         child: Text(
           noWalletsMessage,
@@ -29,10 +27,7 @@ class HomeDashboardWidget extends StatelessWidget {
       );
     }
 
-    double totalBalance = walletList.fold(
-      0,
-      (sum, wallet) => sum + wallet.balance,
-    );
+    double totalBalance = uiModel.currentBalance;
 
     return SingleChildScrollView(
       child: Padding(
@@ -43,13 +38,15 @@ class HomeDashboardWidget extends StatelessWidget {
             HomeTotalBalanceCard(totalBalance: totalBalance),
             const SizedBox(height: 16),
             HomeIncomeExpenseCard(
-              totalIncome: overallFinancialSummary['totalIncome'] ?? 0.0,
-              totalExpenses: overallFinancialSummary['totalExpenses'] ?? 0.0,
+              totalIncome: uiModel.totalIncome,
+              totalExpenses: uiModel.totalExpense,
             ),
             const SizedBox(height: 16),
-            WalletSummaryListWidget(walletList: walletList),
+            WalletSummaryListWidget(walletList: uiModel.walletModelList),
             const SizedBox(height: 16),
-            HomeExpenseSummaryCard(summary: overallFinancialSummary),
+            HomeExpenseSummaryCard(
+              expenseCategoryModelList: uiModel.expenseCategoryModelList,
+            ),
           ],
         ),
       ),

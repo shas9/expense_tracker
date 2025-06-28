@@ -1,4 +1,4 @@
-import 'package:expense_tracker/data/model/category/category_data_model.dart';
+import 'package:expense_tracker/data/model/data_model/category_data_model.dart';
 import 'package:expense_tracker/presenter/pages/create_expense/bloc/create_expense_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

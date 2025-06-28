@@ -1,23 +1,23 @@
 import 'package:expense_tracker/core/router/app_router.dart';
 import 'package:expense_tracker/core/router/route_names.dart';
-import 'package:expense_tracker/data/database/realm_model.dart';
+import 'package:expense_tracker/data/model/ui_model/wallet_ui_model.dart';
 import 'package:flutter/material.dart';
 
 class WalletSummaryListWidget extends StatelessWidget {
-  final List<Wallet> walletList;
+  final List<WalletUiModel> walletList;
   const WalletSummaryListWidget({super.key, required this.walletList});
 
   final String walletsLabel = 'Wallets';
 
-  String getWalletName(Wallet wallet) {
+  String getWalletName(WalletUiModel wallet) {
     return wallet.name.isNotEmpty ? wallet.name : 'Unnamed Wallet';
   }
 
-  String getWalletBalanceLabel(Wallet wallet) {
+  String getWalletBalanceLabel(WalletUiModel wallet) {
     return '\$${wallet.balance.toStringAsFixed(2)}';
   }
 
-  void _handleTapOnWallet(Wallet wallet) {
+  void _handleTapOnWallet(WalletUiModel wallet) {
     AppRouter.navigate(
       RouteNames.createExpense,
       pathParameters: {AppRouter.walletIdKey: '${wallet.id}'},

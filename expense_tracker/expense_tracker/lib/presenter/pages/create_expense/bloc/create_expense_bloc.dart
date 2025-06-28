@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:expense_tracker/data/model/category/category_data_model.dart';
-import 'package:expense_tracker/data/repositories/expense_repository.dart';
+import 'package:expense_tracker/data/model/data_model/category_data_model.dart';
+import 'package:expense_tracker/data/repositories/transaction_repository.dart';
 import 'package:expense_tracker/data/repositories/wallet_repository.dart';
 import 'package:kiwi/kiwi.dart';
 
@@ -8,7 +8,7 @@ part 'create_expense_event.dart';
 part 'create_expense_state.dart';
 
 class CreateExpenseBloc extends Bloc<CreateExpenseEvent, CreateExpenseState> {
-  final ExpenseRepository _expenseRepository = KiwiContainer().resolve<ExpenseRepository>();
+  final TransactionRepository _expenseRepository = KiwiContainer().resolve<TransactionRepository>();
   final WalletRepository _walletRepository = KiwiContainer().resolve<WalletRepository>();
 
   CreateExpenseBloc() : super(CreateExpenseInitial()) {
@@ -32,7 +32,7 @@ class CreateExpenseBloc extends Bloc<CreateExpenseEvent, CreateExpenseState> {
         event.isIncome,
       );
       
-      final wallet = _walletRepository.getWalletById(event.walletId);
+      final wallet = await _walletRepository.getWalletById(event.walletId);
       if (wallet != null) {
         _walletRepository.updateWalletBalance(wallet.id, -event.amount);
       }

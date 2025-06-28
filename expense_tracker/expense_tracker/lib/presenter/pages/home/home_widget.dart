@@ -1,7 +1,6 @@
 import 'package:expense_tracker/core/router/app_router.dart';
 import 'package:expense_tracker/core/router/route_names.dart';
-import 'package:expense_tracker/data/database/realm_model.dart';
-import 'package:expense_tracker/data/repositories/expense_repository.dart';
+import 'package:expense_tracker/data/model/ui_model/home_dashboard_ui_model.dart';
 import 'package:expense_tracker/presenter/pages/home/bloc/home_bloc.dart';
 import 'package:expense_tracker/presenter/pages/home/section/home_dashboard_widget.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +17,12 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget> {
   final HomeBloc homeBloc = KiwiContainer().resolve<HomeBloc>();
-  List<Wallet> walletList = [];
+  HomeDashboardUiModel _uiModel = HomeDashboardUiModel.empty();
 
   @override
   Widget build(BuildContext context) {
     return FocusDetector(
-      onFocusGained: () {
+      onVisibilityGained: () {
         homeBloc.add(LoadHomeDataEvent());
       },
       child: Scaffold(
@@ -43,9 +42,9 @@ class _HomeWidgetState extends State<HomeWidget> {
           listenWhen: (previous, current) => current is HomeActionState,
           buildWhen: (previous, current) => current is! HomeActionState,
           listener: (context, state) {
-            if (state is WalletsLoadedState) {
+            if (state is UiModelLoadedState) {
               setState(() {
-                walletList = state.wallets;
+                _uiModel = state.uiModel;
               });
             }
           },
@@ -54,11 +53,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               return const Center(
                   child: CircularProgressIndicator(color: Colors.white));
             } else {
-              return HomeDashboardWidget(
-                  walletList: walletList,
-                  overallFinancialSummary: KiwiContainer()
-                      .resolve<ExpenseRepository>()
-                      .getOverallFinancialSummary(walletList));
+              return HomeDashboardWidget(uiModel: _uiModel);
             }
           },
         ),

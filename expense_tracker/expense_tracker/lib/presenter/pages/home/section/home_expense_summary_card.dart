@@ -1,11 +1,12 @@
+import 'package:expense_tracker/data/model/ui_model/home_dashboard_ui_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class HomeExpenseSummaryCard extends StatelessWidget {
-  final Map<String, double> summary;
+  final List<ExpenseCategoryUiModel> expenseCategoryModelList;
   const HomeExpenseSummaryCard({
     super.key,
-    required this.summary,
+    required this.expenseCategoryModelList,
   });
 
   final String expenseSummaryLabel = 'Expenses by Category';
@@ -29,7 +30,7 @@ class HomeExpenseSummaryCard extends StatelessWidget {
             ),
             SizedBox(
               height: 250,
-              child: summary.isEmpty
+              child: expenseCategoryModelList.isEmpty
                   ? Center(
                       child: Text(
                       noExpensesMessage,
@@ -39,11 +40,11 @@ class HomeExpenseSummaryCard extends StatelessWidget {
                     ))
                   : PieChart(
                       PieChartData(
-                        sections: summary.entries.map((entry) {
+                        sections: expenseCategoryModelList.map((expenseModel) {
                           return PieChartSectionData(
-                            color: _getCategoryColor(entry.key),
-                            value: entry.value,
-                            title: entry.key,
+                            color: expenseModel.categoryColor,
+                            value: expenseModel.categoryPercentage,
+                            title: expenseModel.categoryName,
                             radius: 100,
                             titleStyle: const TextStyle(
                               color: Colors.white,
@@ -58,20 +59,5 @@ class HomeExpenseSummaryCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color _getCategoryColor(String category) {
-    switch (category) {
-      case 'Food':
-        return Colors.orange;
-      case 'Transport':
-        return Colors.blue;
-      case 'Entertainment':
-        return Colors.purple;
-      case 'Shopping':
-        return Colors.pink;
-      default:
-        return Colors.grey;
-    }
   }
 }

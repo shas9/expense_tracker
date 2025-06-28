@@ -1,6 +1,7 @@
-import 'package:expense_tracker/data/repositories/transaction_repository.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/category_repository.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/transaction_repository.dart';
 import 'package:expense_tracker/data/repositories/home_repository.dart';
-import 'package:expense_tracker/data/repositories/wallet_repository.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/wallet_repository.dart';
 import 'package:expense_tracker/data/service/realm_database_service.dart';
 import 'package:expense_tracker/data/wrapper/shared_preference_wrapper.dart';
 import 'package:expense_tracker/presenter/pages/create_expense/bloc/create_expense_bloc.dart';
@@ -30,14 +31,21 @@ class ServiceContainer {
       ),
     );
     container.registerSingleton<TransactionRepository>(
-      (container) => ExpenseRepositoryImpl(
+      (container) => TransactionRepositoryImpl(
+        realmDatabaseService: container.resolve<RealmDatabaseService>(),
+      ),
+    );
+    container.registerSingleton<CategoryRepository>(
+      (container) => CategoryRepositoryImpl(
         realmDatabaseService: container.resolve<RealmDatabaseService>(),
       ),
     );
     container.registerSingleton<HomeRepository>(
       (container) => HomeRepositoryImpl(
-          expenseRepository: container.resolve<TransactionRepository>(),
-          walletRepository: container.resolve<WalletRepository>()),
+        transactionRepository: container.resolve<TransactionRepository>(),
+        walletRepository: container.resolve<WalletRepository>(),
+        categoryRepository: container.resolve<CategoryRepository>(),
+      ),
     );
 
     // Register Bloc

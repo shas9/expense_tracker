@@ -7,10 +7,12 @@ abstract class RealmDatabaseService {
   Future<void> addWallet(WalletEntity wallet);
   Future<List<WalletEntity>> getAllSavedWallet();
   Future<void> updateWallet(
-    int id,
-    String? name,
-    double? balance,
-  );
+    int id, {
+    required String? name,
+    required double? balance,
+    required String? type,
+    required String? colorCode,
+  });
   Future<WalletEntity?> getWalletById(int walletId);
   Future<void> deleteWallet(int walletId);
 
@@ -24,19 +26,52 @@ abstract class RealmDatabaseService {
     required double? amount,
     required String? description,
     required DateTime? date,
-    required String? category,
+    required int? categoryId,
     required int? walletId,
     required bool? isIncome,
   });
   Future<TransactionEntity?> getTransactionById(int transactionId);
   Future<void> deleteTransaction(int transactionId);
+
+  // MARK: For Category
+  Future<void> addCategory(CategoryEntity category);
+  Future<List<CategoryEntity>> getAllSavedCategory();
+  Future<void> updateCategory(
+    int id, {
+    required String? name,
+    required String? icon,
+    required String? colorCode,
+  });
+  Future<CategoryEntity?> getCategoryById(int categoryId);
+  Future<void> deleteCategory(int categoryId);
+
+  // MARK: For cleanup
+  void dispose();
 }
 
 class RealmDatabaseServiceImpl extends RealmDatabaseService {
+  static Realm? _realm;
+  
+  /// Get singleton Realm instance
+  Future<Realm> _getRealm() async {
+    if (_realm == null || _realm!.isClosed) {
+      final config = Configuration.local(
+        [
+          WalletEntity.schema,
+          TransactionEntity.schema,
+          CategoryEntity.schema,
+        ],
+        schemaVersion: 1,
+      );
+      _realm = Realm(config);
+    }
+    return _realm!;
+  }
+
   // MARK: Method For Wallet
   @override
   Future<void> addWallet(WalletEntity wallet) async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       realm.write(() {
         realm.add(wallet);
@@ -44,14 +79,12 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
     } catch (e) {
       debugPrint('Error saving to Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
   @override
   Future<void> deleteWallet(int walletId) async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       realm.write(() {
         final wallet = realm.find<WalletEntity>(walletId);
@@ -62,57 +95,53 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
     } catch (e) {
       debugPrint('Error deleting from Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
   @override
   Future<List<WalletEntity>> getAllSavedWallet() async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       return realm.all<WalletEntity>().toList();
     } catch (e) {
       debugPrint('Error fetching from Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
   @override
   Future<void> updateWallet(
-    int id,
+    int id, {
     String? name,
     double? balance,
-  ) async {
-    final realm = await _openRealm();
+    String? type,
+    String? colorCode,
+  }) async {
+    final realm = await _getRealm();
     try {
       realm.write(() {
         final wallet = realm.find<WalletEntity>(id);
         if (wallet != null) {
           wallet.name = name ?? wallet.name;
           wallet.balance = balance ?? wallet.balance;
+          wallet.colorCode = colorCode ?? wallet.colorCode;
+          wallet.type = type ?? wallet.type;
         }
       });
     } catch (e) {
       debugPrint('Error updating to Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
   @override
   Future<WalletEntity?> getWalletById(int walletId) async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       return realm.find<WalletEntity>(walletId);
     } catch (e) {
       debugPrint('Error finding data from Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
@@ -120,7 +149,7 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
 
   @override
   Future<void> addTransaction(TransactionEntity transaction) async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       realm.write(() {
         realm.add(transaction);
@@ -128,14 +157,12 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
     } catch (e) {
       debugPrint('Error adding data to Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
   @override
   Future<void> deleteTransaction(int transactionId) async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       realm.write(() {
         final transaction = realm.find<TransactionEntity>(transactionId);
@@ -146,47 +173,42 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
     } catch (e) {
       debugPrint('Error deleting data from Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
   @override
   Future<List<TransactionEntity>> getAllSavedTransaction() async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       return realm.all<TransactionEntity>().toList();
     } catch (e) {
       debugPrint('Error finding data from Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
   @override
-  Future<List<TransactionEntity>> getSavedTransactionFromWallet(int walletId) async {
-    final realm = await _openRealm();
+  Future<List<TransactionEntity>> getSavedTransactionFromWallet(
+    int walletId,
+  ) async {
+    final realm = await _getRealm();
     try {
-      return realm.query<TransactionEntity>('walletId == "$walletId"').toList();
+      // Fixed query syntax - removed quotes around walletId since it's an int
+      return realm.query<TransactionEntity>('walletId == $walletId').toList();
     } catch (e) {
       debugPrint('Error finding data from Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
   @override
   Future<TransactionEntity?> getTransactionById(int transactionId) async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       return realm.find<TransactionEntity>(transactionId);
     } catch (e) {
       debugPrint('Error finding data from Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
@@ -197,11 +219,11 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
     double? amount,
     String? description,
     DateTime? date,
-    String? category,
+    int? categoryId,
     int? walletId,
     bool? isIncome,
   }) async {
-    final realm = await _openRealm();
+    final realm = await _getRealm();
     try {
       realm.write(() {
         final transaction = realm.find<TransactionEntity>(id);
@@ -210,7 +232,7 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
           transaction.amount = amount ?? transaction.amount;
           transaction.description = description ?? transaction.description;
           transaction.date = date ?? transaction.date;
-          transaction.category = category ?? transaction.category;
+          transaction.categoryId = categoryId ?? transaction.categoryId;
           transaction.walletId = walletId ?? transaction.walletId;
           transaction.isIncome = isIncome ?? transaction.isIncome;
         }
@@ -218,21 +240,91 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
     } catch (e) {
       debugPrint('Error updating data to Realm: $e');
       rethrow;
-    } finally {
-      realm.close();
     }
   }
 
-  Future<Realm> _openRealm() async {
-    final config = Configuration.local(
-      [
-        WalletEntity.schema,
-        TransactionEntity.schema,
-        CategoryEntity.schema,
-      ],
-      schemaVersion: 1,
-    );
+  // MARK: For Category
 
-    return await Realm.open(config);
+  @override
+  Future<void> addCategory(CategoryEntity category) async {
+    final realm = await _getRealm();
+    try {
+      realm.write(() {
+        realm.add(category);
+      });
+    } catch (e) {
+      debugPrint('Error adding data to Realm: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteCategory(int categoryId) async {
+    final realm = await _getRealm();
+    try {
+      realm.write(() {
+        final category = realm.find<CategoryEntity>(categoryId);
+        if (category != null) {
+          realm.delete(category);
+        }
+      });
+    } catch (e) {
+      debugPrint('Error deleting data from Realm: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<CategoryEntity>> getAllSavedCategory() async {
+    final realm = await _getRealm();
+    try {
+      return realm.all<CategoryEntity>().toList();
+    } catch (e) {
+      debugPrint('Error finding data from Realm: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CategoryEntity?> getCategoryById(int categoryId) async {
+    final realm = await _getRealm();
+    try {
+      return realm.find<CategoryEntity>(categoryId);
+    } catch (e) {
+      debugPrint('Error finding data from Realm: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateCategory(
+    int id, {
+    required String? name,
+    required String? icon,
+    required String? colorCode,
+  }) async {
+    final realm = await _getRealm();
+    try {
+      realm.write(() {
+        final category = realm.find<CategoryEntity>(id);
+        if (category != null) {
+          category.name = name ?? category.name;
+          category.icon = icon ?? category.icon;
+          category.colorCode = colorCode ?? category.colorCode;
+        }
+      });
+    } catch (e) {
+      debugPrint('Error updating data to Realm: $e');
+      rethrow;
+    }
+  }
+
+  // MARK: Cleanup method
+  @override
+  void dispose() {
+    if (_realm != null && !_realm!.isClosed) {
+      _realm!.close();
+      _realm = null;
+    }
   }
 }

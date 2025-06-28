@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:expense_tracker/data/model/data_model/category_data_model.dart';
-import 'package:expense_tracker/data/repositories/transaction_repository.dart';
-import 'package:expense_tracker/data/repositories/wallet_repository.dart';
+import 'package:expense_tracker/data/model/ui_model/common/category_ui_model.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/transaction_repository.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/wallet_repository.dart';
 import 'package:kiwi/kiwi.dart';
 
 part 'create_expense_event.dart';
@@ -12,11 +12,19 @@ class CreateExpenseBloc extends Bloc<CreateExpenseEvent, CreateExpenseState> {
   final WalletRepository _walletRepository = KiwiContainer().resolve<WalletRepository>();
 
   CreateExpenseBloc() : super(CreateExpenseInitial()) {
-    on<SubmitExpense>(_onSubmitExpense);
+    on<CreateExpenseInitEvent>(onCreateExpenseInitEvent);
+    on<SubmitExpenseEvent>(onSubmitExpense);
   }
 
-  Future<void> _onSubmitExpense(
-    SubmitExpense event,
+  Future<void> onCreateExpenseInitEvent(
+    CreateExpenseInitEvent event,
+    Emitter<CreateExpenseState> emit,
+  ) async {
+    emit(CreateExpenseInitial());
+  }
+
+  Future<void> onSubmitExpense(
+    SubmitExpenseEvent event,
     Emitter<CreateExpenseState> emit,
   ) async {
     emit(CreateExpenseLoading());
@@ -27,7 +35,7 @@ class CreateExpenseBloc extends Bloc<CreateExpenseEvent, CreateExpenseState> {
         event.amount,
         event.description,
         event.date,
-        event.category.name,
+        event.categoryUiModel.categoryId,
         event.walletId,
         event.isIncome,
       );

@@ -1,4 +1,4 @@
-import 'package:expense_tracker/data/model/data_model/category_data_model.dart';
+import 'package:expense_tracker/data/model/ui_model/common/category_ui_model.dart';
 import 'package:expense_tracker/presenter/pages/create_expense/bloc/create_expense_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,23 +24,16 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  CategoryDataModel? _selectedCategory;
+  CategoryUiModel? _selectedCategory;
   final CreateExpenseBloc _bloc = KiwiContainer().resolve<CreateExpenseBloc>();
 
   // Move categories to instance variable so they're the same objects
-  late final List<CategoryDataModel> _categories;
+  late final List<CategoryUiModel> _categories;
 
   @override
   void initState() {
+    _bloc.add(CreateExpenseInitEvent());
     super.initState();
-    // Initialize categories once
-    _categories = [
-      CategoryDataModel(name: 'Food', icon: Icons.food_bank.toString()),
-      CategoryDataModel(name: 'Transport', icon: Icons.car_rental.toString()),
-      CategoryDataModel(name: 'Entertainment', icon: Icons.movie.toString()),
-      CategoryDataModel(name: 'Shopping', icon: Icons.shopping_bag.toString()),
-      CategoryDataModel(name: 'Other', icon: Icons.devices_other.toString()),
-    ];
   }
 
   @override
@@ -54,19 +47,21 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _bloc,
-      child: BlocListener<CreateExpenseBloc, CreateExpenseState>(
-        listener: (context, state) {
-          if (state is CreateExpenseSuccess) {
-            Navigator.pop(context);
-          } else if (state is CreateExpenseFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
-            );
-          }
-        },
-        child: Scaffold(
+    return BlocConsumer<CreateExpenseBloc, CreateExpenseState>(
+      bloc: _bloc,
+      listenWhen: (previous, current) => current is CreateExpenseActionState,
+      buildWhen: (previous, current) => current is! CreateExpenseActionState,
+      listener: (context, state) {
+        if (state is CreateExpenseSuccess) {
+          Navigator.pop(context);
+        } else if (state is CreateExpenseFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.error)),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
           appBar: AppBar(
             title: const Text('Add Expense'),
           ),
@@ -94,8 +89,8 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -171,7 +166,7 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
   }
 
   Widget _buildCategoryDropdown() {
-    return DropdownButtonFormField<CategoryDataModel>(
+    return DropdownButtonFormField<CategoryUiModel>(
       value: _selectedCategory,
       decoration: const InputDecoration(
         labelText: 'Category',
@@ -184,10 +179,11 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
           child: Text(category.name),
         );
       }).toList(),
-      onChanged: (CategoryDataModel? value) {
+      onChanged: (CategoryUiModel? value) {
         if (value == null) return;
         setState(() {
-          _selectedCategory = value; // Direct assignment since value is already from _categories
+          _selectedCategory =
+              value; // Direct assignment since value is already from _categories
         });
       },
       validator: (value) {
@@ -241,12 +237,12 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
       final description = _descriptionController.text;
       final title = _titleController.text;
 
-      _bloc.add(SubmitExpense(
+      _bloc.add(SubmitExpenseEvent(
         title: title,
         amount: amount,
         description: description,
         date: _selectedDate,
-        category: _selectedCategory!,
+        categoryUiModel: _selectedCategory!,
         walletId: widget.walletId,
         isIncome: false,
       ));

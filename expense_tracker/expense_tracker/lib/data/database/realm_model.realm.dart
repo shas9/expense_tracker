@@ -13,11 +13,13 @@ class WalletEntity extends _WalletEntity
     int id,
     String name,
     String type,
+    String colorCode,
     double balance,
   ) {
     RealmObjectBase.set(this, 'id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'type', type);
+    RealmObjectBase.set(this, 'colorCode', colorCode);
     RealmObjectBase.set(this, 'balance', balance);
   }
 
@@ -37,6 +39,12 @@ class WalletEntity extends _WalletEntity
   String get type => RealmObjectBase.get<String>(this, 'type') as String;
   @override
   set type(String value) => RealmObjectBase.set(this, 'type', value);
+
+  @override
+  String get colorCode =>
+      RealmObjectBase.get<String>(this, 'colorCode') as String;
+  @override
+  set colorCode(String value) => RealmObjectBase.set(this, 'colorCode', value);
 
   @override
   double get balance => RealmObjectBase.get<double>(this, 'balance') as double;
@@ -60,6 +68,7 @@ class WalletEntity extends _WalletEntity
       'id': id.toEJson(),
       'name': name.toEJson(),
       'type': type.toEJson(),
+      'colorCode': colorCode.toEJson(),
       'balance': balance.toEJson(),
     };
   }
@@ -72,12 +81,14 @@ class WalletEntity extends _WalletEntity
         'id': EJsonValue id,
         'name': EJsonValue name,
         'type': EJsonValue type,
+        'colorCode': EJsonValue colorCode,
         'balance': EJsonValue balance,
       } =>
         WalletEntity(
           fromEJson(id),
           fromEJson(name),
           fromEJson(type),
+          fromEJson(colorCode),
           fromEJson(balance),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -92,6 +103,7 @@ class WalletEntity extends _WalletEntity
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('type', RealmPropertyType.string),
+      SchemaProperty('colorCode', RealmPropertyType.string),
       SchemaProperty('balance', RealmPropertyType.double),
     ]);
   }();
@@ -108,7 +120,7 @@ class TransactionEntity extends _TransactionEntity
     double amount,
     String description,
     DateTime date,
-    String category,
+    int categoryId,
     int walletId,
     bool isIncome,
   ) {
@@ -117,7 +129,7 @@ class TransactionEntity extends _TransactionEntity
     RealmObjectBase.set(this, 'amount', amount);
     RealmObjectBase.set(this, 'description', description);
     RealmObjectBase.set(this, 'date', date);
-    RealmObjectBase.set(this, 'category', category);
+    RealmObjectBase.set(this, 'categoryId', categoryId);
     RealmObjectBase.set(this, 'walletId', walletId);
     RealmObjectBase.set(this, 'isIncome', isIncome);
   }
@@ -152,10 +164,9 @@ class TransactionEntity extends _TransactionEntity
   set date(DateTime value) => RealmObjectBase.set(this, 'date', value);
 
   @override
-  String get category =>
-      RealmObjectBase.get<String>(this, 'category') as String;
+  int get categoryId => RealmObjectBase.get<int>(this, 'categoryId') as int;
   @override
-  set category(String value) => RealmObjectBase.set(this, 'category', value);
+  set categoryId(int value) => RealmObjectBase.set(this, 'categoryId', value);
 
   @override
   int get walletId => RealmObjectBase.get<int>(this, 'walletId') as int;
@@ -187,7 +198,7 @@ class TransactionEntity extends _TransactionEntity
       'amount': amount.toEJson(),
       'description': description.toEJson(),
       'date': date.toEJson(),
-      'category': category.toEJson(),
+      'categoryId': categoryId.toEJson(),
       'walletId': walletId.toEJson(),
       'isIncome': isIncome.toEJson(),
     };
@@ -203,7 +214,7 @@ class TransactionEntity extends _TransactionEntity
         'amount': EJsonValue amount,
         'description': EJsonValue description,
         'date': EJsonValue date,
-        'category': EJsonValue category,
+        'categoryId': EJsonValue categoryId,
         'walletId': EJsonValue walletId,
         'isIncome': EJsonValue isIncome,
       } =>
@@ -213,7 +224,7 @@ class TransactionEntity extends _TransactionEntity
           fromEJson(amount),
           fromEJson(description),
           fromEJson(date),
-          fromEJson(category),
+          fromEJson(categoryId),
           fromEJson(walletId),
           fromEJson(isIncome),
         ),
@@ -231,7 +242,7 @@ class TransactionEntity extends _TransactionEntity
       SchemaProperty('amount', RealmPropertyType.double),
       SchemaProperty('description', RealmPropertyType.string),
       SchemaProperty('date', RealmPropertyType.timestamp),
-      SchemaProperty('category', RealmPropertyType.string),
+      SchemaProperty('categoryId', RealmPropertyType.int),
       SchemaProperty('walletId', RealmPropertyType.int),
       SchemaProperty('isIncome', RealmPropertyType.bool),
     ]);
@@ -247,10 +258,12 @@ class CategoryEntity extends _CategoryEntity
     int id,
     String name,
     String icon,
+    String colorCode,
   ) {
     RealmObjectBase.set(this, 'id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'icon', icon);
+    RealmObjectBase.set(this, 'colorCode', colorCode);
   }
 
   CategoryEntity._();
@@ -271,6 +284,12 @@ class CategoryEntity extends _CategoryEntity
   set icon(String value) => RealmObjectBase.set(this, 'icon', value);
 
   @override
+  String get colorCode =>
+      RealmObjectBase.get<String>(this, 'colorCode') as String;
+  @override
+  set colorCode(String value) => RealmObjectBase.set(this, 'colorCode', value);
+
+  @override
   Stream<RealmObjectChanges<CategoryEntity>> get changes =>
       RealmObjectBase.getChanges<CategoryEntity>(this);
 
@@ -287,6 +306,7 @@ class CategoryEntity extends _CategoryEntity
       'id': id.toEJson(),
       'name': name.toEJson(),
       'icon': icon.toEJson(),
+      'colorCode': colorCode.toEJson(),
     };
   }
 
@@ -298,11 +318,13 @@ class CategoryEntity extends _CategoryEntity
         'id': EJsonValue id,
         'name': EJsonValue name,
         'icon': EJsonValue icon,
+        'colorCode': EJsonValue colorCode,
       } =>
         CategoryEntity(
           fromEJson(id),
           fromEJson(name),
           fromEJson(icon),
+          fromEJson(colorCode),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -316,6 +338,7 @@ class CategoryEntity extends _CategoryEntity
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('icon', RealmPropertyType.string),
+      SchemaProperty('colorCode', RealmPropertyType.string),
     ]);
   }();
 

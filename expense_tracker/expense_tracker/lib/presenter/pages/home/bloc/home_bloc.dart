@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:expense_tracker/data/model/ui_model/home_dashboard_ui_model.dart';
+import 'package:expense_tracker/data/model/ui_model/home/home_dashboard_ui_model.dart';
 import 'package:expense_tracker/data/repositories/home_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';

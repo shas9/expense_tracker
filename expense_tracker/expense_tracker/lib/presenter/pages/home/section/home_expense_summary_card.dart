@@ -1,12 +1,12 @@
-import 'package:expense_tracker/data/model/ui_model/home_dashboard_ui_model.dart';
+import 'package:expense_tracker/data/model/ui_model/common/transaction_category_ui_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class HomeExpenseSummaryCard extends StatelessWidget {
-  final List<ExpenseCategoryUiModel> expenseCategoryModelList;
+  final List<TransactionCategoryUiModel> transactionCategoryModelList;
   const HomeExpenseSummaryCard({
     super.key,
-    required this.expenseCategoryModelList,
+    required this.transactionCategoryModelList,
   });
 
   final String expenseSummaryLabel = 'Expenses by Category';
@@ -30,7 +30,7 @@ class HomeExpenseSummaryCard extends StatelessWidget {
             ),
             SizedBox(
               height: 250,
-              child: expenseCategoryModelList.isEmpty
+              child: transactionCategoryModelList.isEmpty
                   ? Center(
                       child: Text(
                       noExpensesMessage,
@@ -40,11 +40,11 @@ class HomeExpenseSummaryCard extends StatelessWidget {
                     ))
                   : PieChart(
                       PieChartData(
-                        sections: expenseCategoryModelList.map((expenseModel) {
+                        sections: transactionCategoryModelList.map((expenseModel) {
                           return PieChartSectionData(
-                            color: expenseModel.categoryColor,
-                            value: expenseModel.categoryPercentage,
-                            title: expenseModel.categoryName,
+                            color: expenseModel.categoryUIModel.color,
+                            value: expenseModel.categoryCostAmount,
+                            title: expenseModel.categoryUIModel.name,
                             radius: 100,
                             titleStyle: const TextStyle(
                               color: Colors.white,

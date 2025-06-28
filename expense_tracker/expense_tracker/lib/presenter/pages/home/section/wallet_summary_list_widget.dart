@@ -1,6 +1,6 @@
 import 'package:expense_tracker/core/router/app_router.dart';
 import 'package:expense_tracker/core/router/route_names.dart';
-import 'package:expense_tracker/data/model/ui_model/wallet_ui_model.dart';
+import 'package:expense_tracker/data/model/ui_model/common/wallet_ui_model.dart';
 import 'package:flutter/material.dart';
 
 class WalletSummaryListWidget extends StatelessWidget {

@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:bloc/bloc.dart';
-import 'package:expense_tracker/data/repositories/wallet_repository.dart';
+import 'package:expense_tracker/common/utilities/parser.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/wallet_repository.dart';
 import 'package:kiwi/kiwi.dart';
 
 part 'create_wallet_event.dart';
@@ -16,7 +19,8 @@ class CreateWalletBloc extends Bloc<CreateWalletEvent, CreateWalletState> {
       walletRepository.createWallet(
         event.name, 
         event.type, 
-        event.initialBalance
+        event.initialBalance,
+        Parser.colorToHexWithAlpha(event.walletColor),
       );
       emit(CreateWalletCloseEventState());
     } catch (e) {

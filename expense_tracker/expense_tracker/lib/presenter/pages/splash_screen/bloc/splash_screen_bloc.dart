@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'splash_screen_event.dart';
@@ -23,10 +24,8 @@ class SplashScreenBloc extends Bloc<SplashScreenEvent, SplashScreenState> {
       } else {
         emit(RouteToOnBoardingState());
       }
-      
-      
     } catch (e) {
-      print('Error during splash screen initialization: $e');
+      debugPrint('Error during splash screen initialization: $e');
     }
   }
 }

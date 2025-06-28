@@ -8,6 +8,7 @@ class _WalletEntity {
   late int id;
   late String name;
   late String type;
+  late String colorCode;
   late double balance;
 }
 
@@ -19,8 +20,8 @@ class _TransactionEntity {
   late double amount;
   late String description;
   late DateTime date;
-  late String category;
-  late int walletId; // Change to string to avoid query issues
+  late int categoryId;
+  late int walletId;
   late bool isIncome;
 }
 
@@ -30,5 +31,6 @@ class _CategoryEntity {
   late int id;
   late String name;
   late String icon;
+  late String colorCode;
 }
 

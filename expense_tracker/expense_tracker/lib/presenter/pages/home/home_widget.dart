@@ -1,6 +1,6 @@
 import 'package:expense_tracker/core/router/app_router.dart';
 import 'package:expense_tracker/core/router/route_names.dart';
-import 'package:expense_tracker/data/model/ui_model/home_dashboard_ui_model.dart';
+import 'package:expense_tracker/data/model/ui_model/home/home_dashboard_ui_model.dart';
 import 'package:expense_tracker/presenter/pages/home/bloc/home_bloc.dart';
 import 'package:expense_tracker/presenter/pages/home/section/home_dashboard_widget.dart';
 import 'package:flutter/material.dart';
@@ -16,14 +16,14 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  final HomeBloc homeBloc = KiwiContainer().resolve<HomeBloc>();
+  final HomeBloc _bloc = KiwiContainer().resolve<HomeBloc>();
   HomeDashboardUiModel _uiModel = HomeDashboardUiModel.empty();
 
   @override
   Widget build(BuildContext context) {
     return FocusDetector(
       onVisibilityGained: () {
-        homeBloc.add(LoadHomeDataEvent());
+        _bloc.add(LoadHomeDataEvent());
       },
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -38,7 +38,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           elevation: 0,
         ),
         body: BlocConsumer<HomeBloc, HomeState>(
-          bloc: homeBloc,
+          bloc: _bloc,
           listenWhen: (previous, current) => current is HomeActionState,
           buildWhen: (previous, current) => current is! HomeActionState,
           listener: (context, state) {

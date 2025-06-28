@@ -1,4 +1,4 @@
-import 'package:expense_tracker/data/model/ui_model/home_dashboard_ui_model.dart';
+import 'package:expense_tracker/data/model/ui_model/home/home_dashboard_ui_model.dart';
 import 'package:expense_tracker/presenter/pages/home/section/home_expense_summary_card.dart';
 import 'package:expense_tracker/presenter/pages/home/section/home_income_expense_card.dart';
 import 'package:expense_tracker/presenter/pages/home/section/home_total_balance_card.dart';
@@ -45,7 +45,7 @@ class HomeDashboardWidget extends StatelessWidget {
             WalletSummaryListWidget(walletList: uiModel.walletModelList),
             const SizedBox(height: 16),
             HomeExpenseSummaryCard(
-              expenseCategoryModelList: uiModel.expenseCategoryModelList,
+              transactionCategoryModelList: uiModel.transactionCategoryModelList,
             ),
           ],
         ),

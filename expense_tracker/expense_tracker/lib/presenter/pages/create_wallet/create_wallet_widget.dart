@@ -179,6 +179,7 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
           name: _nameController.text,
           type: _selectedWalletType,
           initialBalance: double.parse(_balanceController.text),
+          walletColor: Colors.green
         ),
       );
     }

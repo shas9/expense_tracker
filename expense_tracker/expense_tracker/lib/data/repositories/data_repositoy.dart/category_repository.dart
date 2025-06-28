@@ -3,11 +3,11 @@ import 'package:expense_tracker/data/database/realm_model.dart';
 import 'package:expense_tracker/data/service/realm_database_service.dart';
 
 abstract class CategoryRepository {
-  Future<CategoryEntity> createCategory(
-    String name,
-    String icon,
-    String colorCode,
-  );
+  Future<CategoryEntity> createCategory({
+    required String name,
+    required String icon,
+    required String colorCode,
+  });
   Future<List<CategoryEntity>> getAllCategory();
   Future<void> deleteCategory(int categoryId);
   Future<void> updateCategory(
@@ -25,11 +25,11 @@ class CategoryRepositoryImpl extends CategoryRepository {
   CategoryRepositoryImpl({required this.realmDatabaseService});
 
   @override
-  Future<CategoryEntity> createCategory(
-    String name,
-    String icon,
-    String colorCode,
-  ) async {
+  Future<CategoryEntity> createCategory({
+    required String name,
+    required String icon,
+    required String colorCode,
+  }) async {
     CategoryEntity categoryEntity = CategoryEntity(
       IdGenerator.generateId(),
       name,

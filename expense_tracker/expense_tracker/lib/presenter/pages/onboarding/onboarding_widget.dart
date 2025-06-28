@@ -1,6 +1,8 @@
 import 'package:expense_tracker/core/router/app_router.dart';
 import 'package:expense_tracker/core/router/route_names.dart';
+import 'package:expense_tracker/presenter/pages/onboarding/bloc/onboarding_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:kiwi/kiwi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingWidget extends StatefulWidget {
@@ -13,6 +15,13 @@ class OnboardingWidget extends StatefulWidget {
 class _OnboardingWidgetState extends State<OnboardingWidget> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  final _bloc = KiwiContainer().resolve<OnboardingBloc>();
+
+  @override
+  void initState() {
+    _bloc.add(OnboardingInitEvent());
+    super.initState();
+  }
 
   final List<OnboardingSingleWidget> _pages = [
     OnboardingSingleWidget(

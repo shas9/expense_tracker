@@ -1,10 +1,10 @@
-part of 'create_expense_bloc.dart';
+part of 'create_transaction_bloc.dart';
 
-sealed class CreateExpenseEvent {}
+sealed class CreateTransactionEvent {}
 
-final class CreateExpenseInitEvent extends CreateExpenseEvent {}
+final class CreateTransactionInitEvent extends CreateTransactionEvent {}
 
-final class SubmitExpenseEvent extends CreateExpenseEvent {
+final class SubmitTransactionEvent extends CreateTransactionEvent {
   final String title;
   final double amount;
   final String description;
@@ -13,7 +13,7 @@ final class SubmitExpenseEvent extends CreateExpenseEvent {
   final int walletId;
   final bool isIncome;
 
-  SubmitExpenseEvent({
+  SubmitTransactionEvent({
     required this.title,
     required this.amount,
     required this.description,

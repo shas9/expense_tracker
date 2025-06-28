@@ -4,7 +4,7 @@ import 'package:expense_tracker/data/repositories/home_repository.dart';
 import 'package:expense_tracker/data/repositories/data_repositoy.dart/wallet_repository.dart';
 import 'package:expense_tracker/data/service/realm_database_service.dart';
 import 'package:expense_tracker/data/wrapper/shared_preference_wrapper.dart';
-import 'package:expense_tracker/presenter/pages/create_expense/bloc/create_expense_bloc.dart';
+import 'package:expense_tracker/presenter/pages/create_transaction/bloc/create_transaction_bloc.dart';
 import 'package:expense_tracker/presenter/pages/create_wallet/bloc/create_wallet_bloc.dart';
 import 'package:expense_tracker/presenter/pages/home/bloc/home_bloc.dart';
 import 'package:kiwi/kiwi.dart';
@@ -51,6 +51,6 @@ class ServiceContainer {
     // Register Bloc
     container.registerInstance(HomeBloc());
     container.registerInstance(CreateWalletBloc());
-    container.registerInstance(CreateExpenseBloc());
+    container.registerInstance(CreateTransactionBloc());
   }
 }

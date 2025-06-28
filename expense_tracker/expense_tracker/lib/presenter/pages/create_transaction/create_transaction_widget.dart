@@ -1,23 +1,24 @@
 import 'package:expense_tracker/data/model/ui_model/common/category_ui_model.dart';
-import 'package:expense_tracker/presenter/pages/create_expense/bloc/create_expense_bloc.dart';
+import 'package:expense_tracker/presenter/pages/create_transaction/bloc/create_transaction_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:kiwi/kiwi.dart';
 
-class CreateExpenseWidget extends StatefulWidget {
+class CreateTransactionWidget extends StatefulWidget {
   final int walletId;
 
-  const CreateExpenseWidget({
+  const CreateTransactionWidget({
     super.key,
     required this.walletId,
   });
 
   @override
-  State<CreateExpenseWidget> createState() => _CreateExpenseWidgetState();
+  State<CreateTransactionWidget> createState() =>
+      _CreateTransactionWidgetState();
 }
 
-class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
+class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
   final _formKey = GlobalKey<FormState>();
 
   final _titleController = TextEditingController();
@@ -25,14 +26,14 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
   final _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   CategoryUiModel? _selectedCategory;
-  final CreateExpenseBloc _bloc = KiwiContainer().resolve<CreateExpenseBloc>();
+  final CreateTransactionBloc _bloc =
+      KiwiContainer().resolve<CreateTransactionBloc>();
 
-  // Move categories to instance variable so they're the same objects
-  late final List<CategoryUiModel> _categories;
+  List<CategoryUiModel> _categories = [];
 
   @override
   void initState() {
-    _bloc.add(CreateExpenseInitEvent());
+    _bloc.add(CreateTransactionInitEvent());
     super.initState();
   }
 
@@ -41,20 +42,25 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
     _titleController.dispose();
     _amountController.dispose();
     _descriptionController.dispose();
-    _bloc.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CreateExpenseBloc, CreateExpenseState>(
+    return BlocConsumer<CreateTransactionBloc, CreateTransactionState>(
       bloc: _bloc,
-      listenWhen: (previous, current) => current is CreateExpenseActionState,
-      buildWhen: (previous, current) => current is! CreateExpenseActionState,
+      listenWhen: (previous, current) =>
+          current is CreateTransactionActionState,
+      buildWhen: (previous, current) =>
+          current is! CreateTransactionActionState,
       listener: (context, state) {
-        if (state is CreateExpenseSuccess) {
+        if (state is CategoryListLoadedState) {
+          setState(() {
+            _categories = state.categoryUiModelList;
+          });
+        } else if (state is CreateTransactionSuccess) {
           Navigator.pop(context);
-        } else if (state is CreateExpenseFailure) {
+        } else if (state is CreateTransactionFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.error)),
           );
@@ -196,24 +202,18 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
   }
 
   Widget _buildSubmitButton() {
-    return BlocBuilder<CreateExpenseBloc, CreateExpenseState>(
-      builder: (context, state) {
-        return ElevatedButton(
-          onPressed: state is CreateExpenseLoading ? null : _submitForm,
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: state is CreateExpenseLoading
-              ? const CircularProgressIndicator()
-              : const Text(
-                  'Add Expense',
-                  style: TextStyle(fontSize: 16),
-                ),
-        );
-      },
+    return ElevatedButton(
+      onPressed: _submitForm,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: const Text(
+        'Add Expense',
+        style: TextStyle(fontSize: 16),
+      ),
     );
   }
 
@@ -237,7 +237,7 @@ class _CreateExpenseWidgetState extends State<CreateExpenseWidget> {
       final description = _descriptionController.text;
       final title = _titleController.text;
 
-      _bloc.add(SubmitExpenseEvent(
+      _bloc.add(SubmitTransactionEvent(
         title: title,
         amount: amount,
         description: description,

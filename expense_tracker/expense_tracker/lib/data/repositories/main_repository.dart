@@ -1,7 +1,10 @@
+import 'package:expense_tracker/data/model/ui_model/common/wallet_type_ui_model.dart';
 import 'package:expense_tracker/data/repositories/data_repositoy.dart/category_repository.dart';
+import 'package:flutter/material.dart';
 
 abstract class MainRepository {
   Future<void> loadInitialData();
+  Future<List<WalletTypeUiModel>> loadWalletTypeList();
 }
 
 class MainRepositoryImpl extends MainRepository {
@@ -13,7 +16,42 @@ class MainRepositoryImpl extends MainRepository {
 
   @override
   Future<void> loadInitialData() async {
-    // Create some default categories
+    await loadCategoryData();
+  }
+
+  @override
+  Future<List<WalletTypeUiModel>> loadWalletTypeList() async {
+    return [
+      WalletTypeUiModel(
+        id: 1,
+        name: 'Cash',
+        icon: Icons.money,
+        color: Colors.green,
+      ),
+      WalletTypeUiModel(
+        id: 2,
+        name: 'Bank Account',
+        icon: Icons.account_balance,
+        color: Colors.blue,
+      ),
+      WalletTypeUiModel(
+        id: 3,
+        name: 'Credit Card',
+        icon: Icons.credit_card,
+        color: Colors.purple,
+      ),
+      WalletTypeUiModel(
+        id: 4,
+        name: 'Mobile Banking',
+        icon: Icons.phone_iphone,
+        color: Colors.orange,
+      ),
+    ];
+  }
+
+  // MARK: Private Method
+
+  Future<void> loadCategoryData() async {
     await categoryRepository.createCategory(
       name: 'Food',
       icon: '🍔',

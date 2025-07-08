@@ -55,7 +55,7 @@ class WalletSummaryListWidget extends StatelessWidget {
                       ),
                     ),
                     subtitle: Text(
-                      wallet.type,
+                      wallet.walletTypeModel.name,
                       style: const TextStyle(
                         color: Colors.white70,
                       ),

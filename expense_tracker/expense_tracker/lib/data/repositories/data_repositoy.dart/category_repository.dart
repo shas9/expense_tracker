@@ -6,9 +6,12 @@ abstract class CategoryRepository {
   Future<CategoryEntity> createCategory({
     required String name,
     required String icon,
+    required bool isExpenseCategory,
     required String colorCode,
   });
   Future<List<CategoryEntity>> getAllCategory();
+  Future<List<CategoryEntity>> getAllExpenseCategory();
+  Future<List<CategoryEntity>> getAllIncomeCategory();
   Future<void> deleteCategory(int categoryId);
   Future<void> updateCategory(
     int categoryId, {
@@ -28,12 +31,14 @@ class CategoryRepositoryImpl extends CategoryRepository {
   Future<CategoryEntity> createCategory({
     required String name,
     required String icon,
+    required bool isExpenseCategory,
     required String colorCode,
   }) async {
     CategoryEntity categoryEntity = CategoryEntity(
       IdGenerator.generateId(),
       name,
       icon,
+      isExpenseCategory,
       colorCode,
     );
     await realmDatabaseService.addCategory(categoryEntity);
@@ -68,5 +73,15 @@ class CategoryRepositoryImpl extends CategoryRepository {
       icon: icon,
       colorCode: colorCode,
     );
+  }
+  
+  @override
+  Future<List<CategoryEntity>> getAllExpenseCategory() {
+    return realmDatabaseService.getAllExpenseCategory();
+  }
+  
+  @override
+  Future<List<CategoryEntity>> getAllIncomeCategory() {
+    return realmDatabaseService.getAllIncomeCategory();
   }
 }

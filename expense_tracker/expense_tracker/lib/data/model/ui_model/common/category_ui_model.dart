@@ -1,4 +1,4 @@
-
+import 'package:expense_tracker/common/utilities/parser.dart';
 import 'package:expense_tracker/data/database/realm_model.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +20,9 @@ class CategoryUiModel {
       categoryId: categoryEntity.id,
       name: categoryEntity.name,
       icon: categoryEntity.icon,
-      color: _getCategoryColor(categoryEntity.name),
+      color: Parser.hexStringToColor(
+        categoryEntity.colorCode,
+      ),
     );
   }
 
@@ -29,22 +31,7 @@ class CategoryUiModel {
       categoryId: 0,
       name: 'Other',
       icon: Icons.pages.toString(),
-      color: _getCategoryColor(""),
+      color: Colors.grey
     );
-  }
-}
-
-Color _getCategoryColor(String category) {
-  switch (category) {
-    case 'Food':
-      return Colors.orange;
-    case 'Transport':
-      return Colors.blue;
-    case 'Entertainment':
-      return Colors.purple;
-    case 'Shopping':
-      return Colors.pink;
-    default:
-      return Colors.grey;
   }
 }

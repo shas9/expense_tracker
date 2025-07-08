@@ -30,6 +30,7 @@ class ServiceContainer {
     container.registerSingleton<WalletRepository>(
       (container) => WalletRepositoryImpl(
         realmDatabaseService: container.resolve<RealmDatabaseService>(),
+        mainRepository: container.resolve<MainRepository>(),
       ),
     );
     container.registerSingleton<TransactionRepository>(

@@ -20,7 +20,7 @@ class CreateWalletBloc extends Bloc<CreateWalletEvent, CreateWalletState> {
 
   Future<void> onCreateWalletInitEvent(CreateWalletInitEvent event, Emitter<CreateWalletState> emit) async {
     try {
-      final walletTyepList = await mainRepository.loadWalletTypeList();
+      final walletTyepList = await mainRepository.getWalletTypeList();
       emit(WalletTypeListLoadedState(walletTyepList));
     } catch (e) {
       emit(DisplayErrorMessage(e.toString()));
@@ -31,7 +31,7 @@ class CreateWalletBloc extends Bloc<CreateWalletEvent, CreateWalletState> {
     try {
       walletRepository.createWallet(
         event.name, 
-        event.type, 
+        event.walletTypeUiModel.id, 
         event.initialBalance,
         Parser.colorToHexWithAlpha(event.walletColor),
       );

@@ -2,7 +2,10 @@ part of 'create_transaction_bloc.dart';
 
 sealed class CreateTransactionEvent {}
 
-final class CreateTransactionInitEvent extends CreateTransactionEvent {}
+final class CreateTransactionInitEvent extends CreateTransactionEvent {
+  final int? walletId;
+  CreateTransactionInitEvent({this.walletId});
+}
 
 final class SubmitTransactionEvent extends CreateTransactionEvent {
   final String title;

@@ -74,7 +74,7 @@ class TransactionRepositoryImpl extends TransactionRepository {
           walletId,
           name: null,
           balance: wallet.balance + ((isIncome == true) ? amount : -amount),
-          type: null,
+          walletTypeId: null,
           colorCode: null,
         );
       }

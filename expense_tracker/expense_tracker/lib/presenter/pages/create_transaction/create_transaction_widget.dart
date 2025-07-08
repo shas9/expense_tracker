@@ -1,8 +1,10 @@
 import 'package:expense_tracker/common/custom_widget_component/custom_decoration.dart';
 import 'package:expense_tracker/common/widgets/custom_date_picker.dart';
 import 'package:expense_tracker/common/widgets/primary_button_widget.dart';
+import 'package:expense_tracker/common/widgets/primary_dropdown_widget.dart';
 import 'package:expense_tracker/common/widgets/primary_text_field.dart';
 import 'package:expense_tracker/data/model/ui_model/common/category_ui_model.dart';
+import 'package:expense_tracker/data/model/ui_model/common/wallet_ui_model.dart';
 import 'package:expense_tracker/data/model/ui_model/create_transaction/create_transaction_ui_model.dart';
 import 'package:expense_tracker/presenter/pages/create_transaction/bloc/create_transaction_bloc.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +12,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kiwi/kiwi.dart';
 
 class CreateTransactionWidget extends StatefulWidget {
-  final int walletId;
+  final int? walletId;
 
   const CreateTransactionWidget({
     super.key,
-    required this.walletId,
+    this.walletId,
   });
 
   @override
@@ -30,7 +32,7 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
 
   @override
   void initState() {
-    _bloc.add(CreateTransactionInitEvent());
+    _bloc.add(CreateTransactionInitEvent(walletId: widget.walletId));
     super.initState();
   }
 
@@ -54,6 +56,14 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
         if (state is CategoryListLoadedState) {
           setState(() {
             _uiModel.categories = state.categoryUiModelList;
+          });
+        } else if (state is WalletListLoadedState) {
+          setState(() {
+            _uiModel.wallets = state.walletUiModelList;
+          });
+        } else if (state is SelectedWalletLoadedState) {
+          setState(() {
+            _uiModel.selectedWallet = state.selectedWallet;
           });
         } else if (state is CreateTransactionSuccess) {
           Navigator.pop(context);
@@ -81,6 +91,8 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
                       label: 'Title',
                       hint: 'Title',
                     ),
+                    const SizedBox(height: 16),
+                    _buildWalletDropdown(),
                     const SizedBox(height: 16),
                     PrimaryTextField(
                       controller: _uiModel.amountController,
@@ -133,32 +145,31 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
     );
   }
 
+  Widget _buildWalletDropdown() {
+    return PrimaryDropdownWidgetExtension.wallet(
+      value: _uiModel.selectedWallet,
+      wallets: _uiModel.wallets,
+      colorScheme: Theme.of(context).colorScheme,
+      onChanged: (WalletUiModel? value) {
+        if (value == null) return;
+        setState(() {
+          _uiModel.selectedWallet = value;
+        });
+      },
+    );
+  }
+
+// Replace _buildCategoryDropdown() with:
   Widget _buildCategoryDropdown() {
-    return DropdownButtonFormField<CategoryUiModel>(
+    return PrimaryDropdownWidgetExtension.category(
       value: _uiModel.selectedCategory,
-      decoration: CustomDecoration.getInputFieldDecoration(
-        label: 'Category',
-        hint: _uiModel.selectedCategory?.name ?? 'Select Category',
-        colorScheme: Theme.of(context).colorScheme,
-      ),
-      items: _uiModel.categories.map((category) {
-        return DropdownMenuItem(
-          value: category,
-          child: Text(category.name),
-        );
-      }).toList(),
+      categories: _uiModel.categories,
+      colorScheme: Theme.of(context).colorScheme,
       onChanged: (CategoryUiModel? value) {
         if (value == null) return;
         setState(() {
-          _uiModel.selectedCategory =
-              value; // Direct assignment since value is already from _categories
+          _uiModel.selectedCategory = value;
         });
-      },
-      validator: (value) {
-        if (value == null) {
-          return 'Please select a category';
-        }
-        return null;
       },
     );
   }
@@ -191,7 +202,7 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
         description: description,
         date: _uiModel.selectedDate,
         categoryUiModel: _uiModel.selectedCategory!,
-        walletId: widget.walletId,
+        walletId: _uiModel.selectedWallet!.id,
         isIncome: false,
       ));
     }

@@ -10,7 +10,7 @@ abstract class RealmDatabaseService {
     int id, {
     required String? name,
     required double? balance,
-    required String? type,
+    required int? walletTypeId,
     required String? colorCode,
   });
   Future<WalletEntity?> getWalletById(int walletId);
@@ -36,6 +36,8 @@ abstract class RealmDatabaseService {
   // MARK: For Category
   Future<void> addCategory(CategoryEntity category);
   Future<List<CategoryEntity>> getAllSavedCategory();
+  Future<List<CategoryEntity>> getAllExpenseCategory();
+  Future<List<CategoryEntity>> getAllIncomeCategory();
   Future<void> updateCategory(
     int id, {
     required String? name,
@@ -114,7 +116,7 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
     int id, {
     String? name,
     double? balance,
-    String? type,
+    int? walletTypeId,
     String? colorCode,
   }) async {
     final realm = await _getRealm();
@@ -125,7 +127,7 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
           wallet.name = name ?? wallet.name;
           wallet.balance = balance ?? wallet.balance;
           wallet.colorCode = colorCode ?? wallet.colorCode;
-          wallet.type = type ?? wallet.type;
+          wallet.walletTypeId = walletTypeId ?? wallet.walletTypeId;
         }
       });
     } catch (e) {
@@ -279,6 +281,29 @@ class RealmDatabaseServiceImpl extends RealmDatabaseService {
     final realm = await _getRealm();
     try {
       return realm.all<CategoryEntity>().toList();
+    } catch (e) {
+      debugPrint('Error finding data from Realm: $e');
+      rethrow;
+    }
+  }
+
+
+  @override
+  Future<List<CategoryEntity>> getAllExpenseCategory() async {
+    final realm = await _getRealm();
+    try {
+      return realm.query<CategoryEntity>('isExpenseCategory == true').toList();
+    } catch (e) {
+      debugPrint('Error finding data from Realm: $e');
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<List<CategoryEntity>> getAllIncomeCategory() async {
+    final realm = await _getRealm();
+    try {
+      return realm.query<CategoryEntity>('isExpenseCategory == false').toList();
     } catch (e) {
       debugPrint('Error finding data from Realm: $e');
       rethrow;

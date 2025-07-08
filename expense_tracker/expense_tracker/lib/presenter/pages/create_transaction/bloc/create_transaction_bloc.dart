@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:expense_tracker/data/model/ui_model/common/category_ui_model.dart';
+import 'package:expense_tracker/data/model/ui_model/common/wallet_ui_model.dart';
 import 'package:expense_tracker/data/repositories/data_repositoy.dart/category_repository.dart';
 import 'package:expense_tracker/data/repositories/data_repositoy.dart/transaction_repository.dart';
 import 'package:expense_tracker/data/repositories/data_repositoy.dart/wallet_repository.dart';
@@ -8,14 +9,10 @@ import 'package:kiwi/kiwi.dart';
 part 'create_transaction_event.dart';
 part 'create_transaction_state.dart';
 
-class CreateTransactionBloc
-    extends Bloc<CreateTransactionEvent, CreateTransactionState> {
-  final TransactionRepository _expenseRepository =
-      KiwiContainer().resolve<TransactionRepository>();
-  final WalletRepository _walletRepository =
-      KiwiContainer().resolve<WalletRepository>();
-  final CategoryRepository _categoryRepository =
-      KiwiContainer().resolve<CategoryRepository>();
+class CreateTransactionBloc extends Bloc<CreateTransactionEvent, CreateTransactionState> {
+  final _transactionRepository = KiwiContainer().resolve<TransactionRepository>();
+  final _walletRepository = KiwiContainer().resolve<WalletRepository>();
+  final _categoryRepository = KiwiContainer().resolve<CategoryRepository>();
 
   CreateTransactionBloc() : super(CreateTransactionInitial()) {
     on<CreateTransactionInitEvent>(onCreateExpenseInitEvent);
@@ -31,6 +28,13 @@ class CreateTransactionBloc
         .map((category) => CategoryUiModel.fromEntity(category))
         .toList();
     emit(CategoryListLoadedState(categoryUiModelList));
+
+    final walletList = await _walletRepository.getAllWallets();
+    final wallet = event.walletId == null ? walletList.first : await _walletRepository.getWalletById(event.walletId!);
+    emit(WalletListLoadedState(
+      walletList.map((wallet) => WalletUiModel.fromEntity(wallet)).toList(),
+    ));
+    emit(SelectedWalletLoadedState(WalletUiModel.fromEntity(wallet!)));
     emit(CreateTransactionInitial());
   }
 
@@ -41,7 +45,7 @@ class CreateTransactionBloc
     emit(CreateExpenseLoading());
 
     try {
-      _expenseRepository.addTransaction(
+      _transactionRepository.addTransaction(
         event.title,
         event.amount,
         event.description,

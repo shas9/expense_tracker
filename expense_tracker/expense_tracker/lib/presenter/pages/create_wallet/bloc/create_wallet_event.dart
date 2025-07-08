@@ -6,13 +6,13 @@ class CreateWalletInitEvent extends CreateWalletEvent {}
 
 class CreateWalletRequestedEvent extends CreateWalletEvent {
   final String name;
-  final String type;
+  final WalletTypeUiModel walletTypeUiModel;
   final double initialBalance;
   final Color walletColor;
 
   CreateWalletRequestedEvent({
     required this.name, 
-    required this.type, 
+    required this.walletTypeUiModel, 
     required this.initialBalance,
     required this.walletColor,
   });

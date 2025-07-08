@@ -7,7 +7,7 @@ class _WalletEntity {
   @PrimaryKey()
   late int id;
   late String name;
-  late String type;
+  late int walletTypeId; 
   late String colorCode;
   late double balance;
 }
@@ -31,6 +31,7 @@ class _CategoryEntity {
   late int id;
   late String name;
   late String icon;
+  late bool isExpenseCategory;
   late String colorCode;
 }
 

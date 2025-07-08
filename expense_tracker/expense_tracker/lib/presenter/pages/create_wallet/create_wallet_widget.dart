@@ -32,7 +32,7 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
     super.dispose();
   }
 
-  void _onWalletTypeChanged(String? value) {
+  void _onWalletTypeChanged(WalletTypeUiModel? value) {
     if (value == null) return;
     setState(() {
       _uiModel.selectedWalletType = value;
@@ -44,7 +44,7 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
       _bloc.add(
         CreateWalletRequestedEvent(
             name: _uiModel.nameController.text,
-            type: _uiModel.selectedWalletType,
+            walletTypeUiModel: _uiModel.selectedWalletType!,
             initialBalance: double.parse(_uiModel.balanceController.text),
             walletColor: Colors.green),
       );
@@ -53,8 +53,7 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
 
   void _onWalletTypeListLoaded(List<WalletTypeUiModel> walletTypeList) {
     setState(() {
-      _uiModel.walletTypes =
-          walletTypeList.map((walletType) => walletType.name).toList();
+      _uiModel.walletTypes = walletTypeList;
       _uiModel.selectedWalletType = _uiModel.walletTypes.first;
     });
   }
@@ -106,11 +105,7 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
                       isNumber: true,
                     ),
                     const SizedBox(height: 16),
-                    PrimaryDropdownWidget(
-                      selectedDropdownType: _uiModel.selectedWalletType,
-                      itemList: _uiModel.walletTypes,
-                      onValueChanged: _onWalletTypeChanged,
-                    ),
+                    _buildWalletTypeDropdown(),
                     const Spacer(),
                     PrimaryButtonWidget(
                       label: 'Create Wallet',
@@ -122,6 +117,17 @@ class _CreateWalletWidgetState extends State<CreateWalletWidget> {
             ),
           ),
         );
+      },
+    );
+  }
+
+  Widget _buildWalletTypeDropdown() {
+    return PrimaryDropdownWidgetExtension.walletType(
+      value: _uiModel.selectedWalletType,
+      walletTypes: _uiModel.walletTypes,
+      colorScheme: Theme.of(context).colorScheme,
+      onChanged: (WalletTypeUiModel? value) {
+        _onWalletTypeChanged(value);
       },
     );
   }

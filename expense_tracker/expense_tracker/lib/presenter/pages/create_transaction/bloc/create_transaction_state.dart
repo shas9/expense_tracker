@@ -20,3 +20,13 @@ class CategoryListLoadedState extends CreateTransactionActionState {
   final List<CategoryUiModel> categoryUiModelList;
   CategoryListLoadedState(this.categoryUiModelList);
 }
+
+class WalletListLoadedState extends CreateTransactionActionState {
+  final List<WalletUiModel> walletUiModelList;
+  WalletListLoadedState(this.walletUiModelList);
+}
+
+class SelectedWalletLoadedState extends CreateTransactionActionState {
+  final WalletUiModel selectedWallet;
+  SelectedWalletLoadedState(this.selectedWallet);
+}

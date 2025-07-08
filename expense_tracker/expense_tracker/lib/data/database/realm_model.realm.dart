@@ -12,13 +12,13 @@ class WalletEntity extends _WalletEntity
   WalletEntity(
     int id,
     String name,
-    String type,
+    int walletTypeId,
     String colorCode,
     double balance,
   ) {
     RealmObjectBase.set(this, 'id', id);
     RealmObjectBase.set(this, 'name', name);
-    RealmObjectBase.set(this, 'type', type);
+    RealmObjectBase.set(this, 'walletTypeId', walletTypeId);
     RealmObjectBase.set(this, 'colorCode', colorCode);
     RealmObjectBase.set(this, 'balance', balance);
   }
@@ -36,9 +36,10 @@ class WalletEntity extends _WalletEntity
   set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
-  String get type => RealmObjectBase.get<String>(this, 'type') as String;
+  int get walletTypeId => RealmObjectBase.get<int>(this, 'walletTypeId') as int;
   @override
-  set type(String value) => RealmObjectBase.set(this, 'type', value);
+  set walletTypeId(int value) =>
+      RealmObjectBase.set(this, 'walletTypeId', value);
 
   @override
   String get colorCode =>
@@ -67,7 +68,7 @@ class WalletEntity extends _WalletEntity
     return <String, dynamic>{
       'id': id.toEJson(),
       'name': name.toEJson(),
-      'type': type.toEJson(),
+      'walletTypeId': walletTypeId.toEJson(),
       'colorCode': colorCode.toEJson(),
       'balance': balance.toEJson(),
     };
@@ -80,14 +81,14 @@ class WalletEntity extends _WalletEntity
       {
         'id': EJsonValue id,
         'name': EJsonValue name,
-        'type': EJsonValue type,
+        'walletTypeId': EJsonValue walletTypeId,
         'colorCode': EJsonValue colorCode,
         'balance': EJsonValue balance,
       } =>
         WalletEntity(
           fromEJson(id),
           fromEJson(name),
-          fromEJson(type),
+          fromEJson(walletTypeId),
           fromEJson(colorCode),
           fromEJson(balance),
         ),
@@ -102,7 +103,7 @@ class WalletEntity extends _WalletEntity
         ObjectType.realmObject, WalletEntity, 'WalletEntity', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('type', RealmPropertyType.string),
+      SchemaProperty('walletTypeId', RealmPropertyType.int),
       SchemaProperty('colorCode', RealmPropertyType.string),
       SchemaProperty('balance', RealmPropertyType.double),
     ]);
@@ -258,11 +259,13 @@ class CategoryEntity extends _CategoryEntity
     int id,
     String name,
     String icon,
+    bool isExpenseCategory,
     String colorCode,
   ) {
     RealmObjectBase.set(this, 'id', id);
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'icon', icon);
+    RealmObjectBase.set(this, 'isExpenseCategory', isExpenseCategory);
     RealmObjectBase.set(this, 'colorCode', colorCode);
   }
 
@@ -282,6 +285,13 @@ class CategoryEntity extends _CategoryEntity
   String get icon => RealmObjectBase.get<String>(this, 'icon') as String;
   @override
   set icon(String value) => RealmObjectBase.set(this, 'icon', value);
+
+  @override
+  bool get isExpenseCategory =>
+      RealmObjectBase.get<bool>(this, 'isExpenseCategory') as bool;
+  @override
+  set isExpenseCategory(bool value) =>
+      RealmObjectBase.set(this, 'isExpenseCategory', value);
 
   @override
   String get colorCode =>
@@ -306,6 +316,7 @@ class CategoryEntity extends _CategoryEntity
       'id': id.toEJson(),
       'name': name.toEJson(),
       'icon': icon.toEJson(),
+      'isExpenseCategory': isExpenseCategory.toEJson(),
       'colorCode': colorCode.toEJson(),
     };
   }
@@ -318,12 +329,14 @@ class CategoryEntity extends _CategoryEntity
         'id': EJsonValue id,
         'name': EJsonValue name,
         'icon': EJsonValue icon,
+        'isExpenseCategory': EJsonValue isExpenseCategory,
         'colorCode': EJsonValue colorCode,
       } =>
         CategoryEntity(
           fromEJson(id),
           fromEJson(name),
           fromEJson(icon),
+          fromEJson(isExpenseCategory),
           fromEJson(colorCode),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -338,6 +351,7 @@ class CategoryEntity extends _CategoryEntity
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('icon', RealmPropertyType.string),
+      SchemaProperty('isExpenseCategory', RealmPropertyType.bool),
       SchemaProperty('colorCode', RealmPropertyType.string),
     ]);
   }();

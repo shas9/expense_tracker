@@ -1,3 +1,4 @@
+import 'package:expense_tracker/common/custom_widget_component/custom_decoration.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryTextField extends StatelessWidget {
@@ -20,13 +21,7 @@ class PrimaryTextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        filled: true,
-        fillColor: colorScheme.surface,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+      decoration: CustomDecoration.getInputFieldDecoration(label: label, hint: hint, colorScheme: colorScheme),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter $label';

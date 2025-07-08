@@ -1,8 +1,12 @@
+import 'package:expense_tracker/common/custom_widget_component/custom_decoration.dart';
+import 'package:expense_tracker/common/widgets/custom_date_picker.dart';
+import 'package:expense_tracker/common/widgets/primary_button_widget.dart';
+import 'package:expense_tracker/common/widgets/primary_text_field.dart';
 import 'package:expense_tracker/data/model/ui_model/common/category_ui_model.dart';
+import 'package:expense_tracker/data/model/ui_model/create_transaction/create_transaction_ui_model.dart';
 import 'package:expense_tracker/presenter/pages/create_transaction/bloc/create_transaction_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:kiwi/kiwi.dart';
 
 class CreateTransactionWidget extends StatefulWidget {
@@ -19,17 +23,10 @@ class CreateTransactionWidget extends StatefulWidget {
 }
 
 class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
-  final _formKey = GlobalKey<FormState>();
+  final CreateTransactionUiModel _uiModel = CreateTransactionUiModel();
 
-  final _titleController = TextEditingController();
-  final _amountController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
-  CategoryUiModel? _selectedCategory;
   final CreateTransactionBloc _bloc =
       KiwiContainer().resolve<CreateTransactionBloc>();
-
-  List<CategoryUiModel> _categories = [];
 
   @override
   void initState() {
@@ -39,9 +36,9 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _amountController.dispose();
-    _descriptionController.dispose();
+    _uiModel.titleController.dispose();
+    _uiModel.amountController.dispose();
+    _uiModel.descriptionController.dispose();
     super.dispose();
   }
 
@@ -56,7 +53,7 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
       listener: (context, state) {
         if (state is CategoryListLoadedState) {
           setState(() {
-            _categories = state.categoryUiModelList;
+            _uiModel.categories = state.categoryUiModelList;
           });
         } else if (state is CreateTransactionSuccess) {
           Navigator.pop(context);
@@ -69,27 +66,43 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Add Expense'),
+            title: const Text('Add Transaction'),
           ),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(
-                key: _formKey,
+                key: _uiModel.formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildTitleField(),
+                    PrimaryTextField(
+                      controller: _uiModel.titleController,
+                      label: 'Title',
+                      hint: 'Title',
+                    ),
                     const SizedBox(height: 16),
-                    _buildAmountField(),
+                    PrimaryTextField(
+                      controller: _uiModel.amountController,
+                      label: 'Amount',
+                      hint: 'Amount',
+                      isNumber: true,
+                    ),
                     const SizedBox(height: 16),
-                    _buildDescriptionField(),
+                    PrimaryTextField(
+                      controller: _uiModel.descriptionController,
+                      label: 'Description',
+                      hint: 'Description',
+                    ),
                     const SizedBox(height: 16),
                     _buildDatePicker(),
                     const SizedBox(height: 16),
                     _buildCategoryDropdown(),
                     const SizedBox(height: 24),
-                    _buildSubmitButton(),
+                    PrimaryButtonWidget(
+                      label: 'Add Expense',
+                      onPressed: _submitForm,
+                    ),
                   ],
                 ),
               ),
@@ -100,72 +113,21 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
     );
   }
 
-  Widget _buildTitleField() {
-    return TextFormField(
-      controller: _titleController,
-      decoration: const InputDecoration(
-        labelText: 'Title',
-        prefixIcon: Icon(Icons.title),
-        border: OutlineInputBorder(),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter a title';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildAmountField() {
-    return TextFormField(
-      controller: _amountController,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: const InputDecoration(
-        labelText: 'Amount',
-        prefixIcon: Icon(Icons.attach_money),
-        border: OutlineInputBorder(),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter an amount';
-        }
-        if (double.tryParse(value) == null) {
-          return 'Please enter a valid number';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildDescriptionField() {
-    return TextFormField(
-      controller: _descriptionController,
-      decoration: const InputDecoration(
-        labelText: 'Description',
-        prefixIcon: Icon(Icons.description),
-        border: OutlineInputBorder(),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter a description';
-        }
-        return null;
-      },
-    );
-  }
-
   Widget _buildDatePicker() {
     return InkWell(
       onTap: _showDatePicker,
       child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Date',
-          prefixIcon: Icon(Icons.calendar_today),
-          border: OutlineInputBorder(),
+        decoration: CustomDecoration.getInputFieldDecoration(
+          label: 'Date',
+          hint: '',
+          colorScheme: Theme.of(context).colorScheme,
         ),
         child: Text(
-          DateFormat('MMM dd, yyyy').format(_selectedDate),
+          _uiModel.formattedSelectedDate(context),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 16,
+          ),
         ),
       ),
     );
@@ -173,13 +135,13 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
 
   Widget _buildCategoryDropdown() {
     return DropdownButtonFormField<CategoryUiModel>(
-      value: _selectedCategory,
-      decoration: const InputDecoration(
-        labelText: 'Category',
-        prefixIcon: Icon(Icons.category),
-        border: OutlineInputBorder(),
+      value: _uiModel.selectedCategory,
+      decoration: CustomDecoration.getInputFieldDecoration(
+        label: 'Category',
+        hint: _uiModel.selectedCategory?.name ?? 'Select Category',
+        colorScheme: Theme.of(context).colorScheme,
       ),
-      items: _categories.map((category) {
+      items: _uiModel.categories.map((category) {
         return DropdownMenuItem(
           value: category,
           child: Text(category.name),
@@ -188,7 +150,7 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
       onChanged: (CategoryUiModel? value) {
         if (value == null) return;
         setState(() {
-          _selectedCategory =
+          _uiModel.selectedCategory =
               value; // Direct assignment since value is already from _categories
         });
       },
@@ -201,48 +163,34 @@ class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
     );
   }
 
-  Widget _buildSubmitButton() {
-    return ElevatedButton(
-      onPressed: _submitForm,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: const Text(
-        'Add Expense',
-        style: TextStyle(fontSize: 16),
-      ),
-    );
-  }
-
   Future<void> _showDatePicker() async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime? picked = await CustomDatePicker.show(
       context: context,
-      initialDate: _selectedDate,
+      initialDateTime: _uiModel.selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-    if (picked != null && picked != _selectedDate) {
+
+    if (picked != null && picked != _uiModel.selectedDate) {
       setState(() {
-        _selectedDate = picked;
+        _uiModel.selectedDate = picked;
       });
     }
   }
 
   void _submitForm() {
-    if (_formKey.currentState!.validate() && _selectedCategory != null) {
-      final amount = double.parse(_amountController.text);
-      final description = _descriptionController.text;
-      final title = _titleController.text;
+    if (_uiModel.formKey.currentState!.validate() &&
+        _uiModel.selectedCategory != null) {
+      final amount = double.parse(_uiModel.amountController.text);
+      final description = _uiModel.descriptionController.text;
+      final title = _uiModel.titleController.text;
 
       _bloc.add(SubmitTransactionEvent(
         title: title,
         amount: amount,
         description: description,
-        date: _selectedDate,
-        categoryUiModel: _selectedCategory!,
+        date: _uiModel.selectedDate,
+        categoryUiModel: _uiModel.selectedCategory!,
         walletId: widget.walletId,
         isIncome: false,
       ));

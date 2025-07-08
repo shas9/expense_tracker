@@ -1,12 +1,15 @@
-import 'package:expense_tracker/data/database/realm_model.dart';
-import 'package:expense_tracker/data/repositories/expense_repository.dart';
-import 'package:expense_tracker/data/repositories/wallet_repository.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/category_repository.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/transaction_repository.dart';
+import 'package:expense_tracker/data/repositories/home_repository.dart';
+import 'package:expense_tracker/data/repositories/data_repositoy.dart/wallet_repository.dart';
+import 'package:expense_tracker/data/repositories/main_repository.dart';
+import 'package:expense_tracker/data/service/realm_database_service.dart';
 import 'package:expense_tracker/data/wrapper/shared_preference_wrapper.dart';
-import 'package:expense_tracker/presenter/pages/create_expense/bloc/create_expense_bloc.dart';
+import 'package:expense_tracker/presenter/pages/create_transaction/bloc/create_transaction_bloc.dart';
 import 'package:expense_tracker/presenter/pages/create_wallet/bloc/create_wallet_bloc.dart';
 import 'package:expense_tracker/presenter/pages/home/bloc/home_bloc.dart';
+import 'package:expense_tracker/presenter/pages/onboarding/bloc/onboarding_bloc.dart';
 import 'package:kiwi/kiwi.dart';
-import 'package:realm/realm.dart';
 
 class ServiceContainer {
   static void setup() {
@@ -15,26 +18,47 @@ class ServiceContainer {
     // Network
     // container.registerInstance(DioClient());
 
-    final config =
-        Configuration.local([Wallet.schema, Expense.schema, Category.schema]);
-
     // Database
-    container.registerInstance(Realm(config));
+    container.registerSingleton<RealmDatabaseService>(
+      (container) => RealmDatabaseServiceImpl(),
+    );
 
     // Local storage
     container.registerInstance(SharedPreferencesWrapper());
 
     // Register Repositories
-    container.registerSingleton<WalletRepository>((c) => WalletRepositoryImpl(
-          realm: container.resolve<Realm>(),
-        ));
-    container.registerSingleton<ExpenseRepository>((c) => ExpenseRepositoryImpl(
-          realm: container.resolve<Realm>(),
-        ));
+    container.registerSingleton<WalletRepository>(
+      (container) => WalletRepositoryImpl(
+        realmDatabaseService: container.resolve<RealmDatabaseService>(),
+      ),
+    );
+    container.registerSingleton<TransactionRepository>(
+      (container) => TransactionRepositoryImpl(
+        realmDatabaseService: container.resolve<RealmDatabaseService>(),
+      ),
+    );
+    container.registerSingleton<CategoryRepository>(
+      (container) => CategoryRepositoryImpl(
+        realmDatabaseService: container.resolve<RealmDatabaseService>(),
+      ),
+    );
+    container.registerSingleton<MainRepository>(
+      (container) => MainRepositoryImpl(
+        categoryRepository: container.resolve<CategoryRepository>(),
+      ),
+    );
+    container.registerSingleton<HomeRepository>(
+      (container) => HomeRepositoryImpl(
+        transactionRepository: container.resolve<TransactionRepository>(),
+        walletRepository: container.resolve<WalletRepository>(),
+        categoryRepository: container.resolve<CategoryRepository>(),
+      ),
+    );
 
     // Register Bloc
+    container.registerInstance(OnboardingBloc());
     container.registerInstance(HomeBloc());
     container.registerInstance(CreateWalletBloc());
-    container.registerInstance(CreateExpenseBloc());
+    container.registerInstance(CreateTransactionBloc());
   }
 }

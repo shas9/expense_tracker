@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:expense_tracker/data/database/realm_model.dart';
-import 'package:expense_tracker/data/repositories/wallet_repository.dart';
+import 'package:expense_tracker/data/model/ui_model/home/home_dashboard_ui_model.dart';
+import 'package:expense_tracker/data/repositories/home_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 
@@ -8,7 +8,7 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final WalletRepository walletRepository = KiwiContainer().resolve<WalletRepository>();
+  final HomeRepository homeRepository = KiwiContainer().resolve<HomeRepository>();
   HomeBloc() : super(HomeInitial()) {
     on<LoadHomeDataEvent>(onLoadHomeDataEvent);
   }
@@ -16,8 +16,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> onLoadHomeDataEvent(LoadHomeDataEvent event, Emitter<HomeState> emit) async {
     emit(HomeLoadingState());
     try {
-      final wallets = walletRepository.getAllWallets();
-      emit(WalletsLoadedState(wallets));
+      final uiModel = await homeRepository.getDashboardUiModel();
+      emit(UiModelLoadedState(uiModel));
       emit(HomeLoadedState());
     } catch (e) {
       emit(HomeLoadedState());

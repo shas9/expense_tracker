@@ -1,6 +1,6 @@
 import 'package:expense_tracker/core/router/path_names.dart';
 import 'package:expense_tracker/core/router/route_names.dart';
-import 'package:expense_tracker/presenter/pages/create_expense/create_expense_widget.dart';
+import 'package:expense_tracker/presenter/pages/create_transaction/create_transaction_widget.dart';
 import 'package:expense_tracker/presenter/pages/create_wallet/create_wallet_widget.dart';
 import 'package:expense_tracker/presenter/pages/home/home_widget.dart';
 import 'package:expense_tracker/presenter/pages/onboarding/onboarding_widget.dart';
@@ -117,7 +117,7 @@ class AppRouter {
         path: PathNames.createExpense,
         pageBuilder: (BuildContext context, GoRouterState state) {
           return NoTransitionPage(
-            child: CreateExpenseWidget(
+            child: CreateTransactionWidget(
               walletId: int.parse(state.pathParameters[walletIdKey]!),
             ),
           );

@@ -26,3 +26,21 @@ final class SubmitTransactionEvent extends CreateTransactionEvent {
     required this.isIncome
   });
 }
+
+final class SubmitTransferEvent extends CreateTransactionEvent {
+  final String title;
+  final double amount;
+  final String description;
+  final DateTime date;
+  final int fromWalletId;
+  final int toWalletId;
+
+  SubmitTransferEvent({
+    required this.title,
+    required this.amount,
+    required this.description,
+    required this.date,
+    required this.fromWalletId,
+    required this.toWalletId,
+  });
+}

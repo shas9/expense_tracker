@@ -341,6 +341,13 @@ class MainRepositoryImpl extends MainRepository {
     );
 
     await categoryRepository.createCategory(
+      name: 'SHS',
+      icon: 'shs',
+      isExpenseCategory: false,
+      colorCode: '#FF5722', // Deep Orange
+    );
+
+    await categoryRepository.createCategory(
       name: 'Others',
       icon: 'others',
       isExpenseCategory: false,
@@ -348,10 +355,10 @@ class MainRepositoryImpl extends MainRepository {
     );
 
     await categoryRepository.createCategory(
-      name: 'SHS',
-      icon: 'shs',
-      isExpenseCategory: false,
-      colorCode: '#FF5722', // Deep Orange
+      name: 'Others',
+      icon: 'others',
+      isExpenseCategory: true,
+      colorCode: '#9E9E9E', // Grey
     );
   }
 }

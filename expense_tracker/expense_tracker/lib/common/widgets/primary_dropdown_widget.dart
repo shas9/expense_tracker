@@ -88,6 +88,7 @@ class PrimaryDropdownWidget<T> extends StatelessWidget {
 extension PrimaryDropdownWidgetExtension on PrimaryDropdownWidget {
   static Widget wallet({
     required WalletUiModel? value,
+    String label = 'Wallet',
     required List<WalletUiModel> wallets,
     required ColorScheme colorScheme,
     required ValueChanged<WalletUiModel?> onChanged,
@@ -96,7 +97,7 @@ extension PrimaryDropdownWidgetExtension on PrimaryDropdownWidget {
     return PrimaryDropdownWidget<WalletUiModel>(
       value: value,
       items: wallets,
-      label: 'Wallet',
+      label: label,
       hint: value?.name ?? 'Select Wallet',
       colorScheme: colorScheme,
       onChanged: onChanged,

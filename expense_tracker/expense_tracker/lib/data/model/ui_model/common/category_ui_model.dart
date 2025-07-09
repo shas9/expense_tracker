@@ -7,12 +7,14 @@ class CategoryUiModel {
   final String name;
   final String icon;
   final Color color;
+  final bool isExpenseCategory;
 
   CategoryUiModel({
     required this.categoryId,
     required this.name,
     required this.icon,
     required this.color,
+    required this.isExpenseCategory
   });
 
   factory CategoryUiModel.fromEntity(CategoryEntity categoryEntity) {
@@ -23,6 +25,7 @@ class CategoryUiModel {
       color: Parser.hexStringToColor(
         categoryEntity.colorCode,
       ),
+      isExpenseCategory: categoryEntity.isExpenseCategory,
     );
   }
 
@@ -31,7 +34,8 @@ class CategoryUiModel {
       categoryId: 0,
       name: 'Other',
       icon: Icons.pages.toString(),
-      color: Colors.grey
+      color: Colors.grey,
+      isExpenseCategory: true,
     );
   }
 }

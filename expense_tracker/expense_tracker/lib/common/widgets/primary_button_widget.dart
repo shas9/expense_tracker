@@ -44,7 +44,7 @@ class _PrimaryButtonWidgetState extends State<PrimaryButtonWidget> {
               width: 1.0,   
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8), 
+              borderRadius: BorderRadius.circular(12), 
             ),
           ),
           child: Text(

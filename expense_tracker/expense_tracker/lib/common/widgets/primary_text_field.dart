@@ -6,12 +6,14 @@ class PrimaryTextField extends StatelessWidget {
   final String label;
   final String hint;
   final bool isNumber;
+  final bool isOptional;
   const PrimaryTextField({
     super.key,
     required this.controller,
     required this.label,
     required this.hint, 
     this.isNumber = false,
+    this.isOptional = false,
   });
 
   @override
@@ -23,6 +25,7 @@ class PrimaryTextField extends StatelessWidget {
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
       decoration: CustomDecoration.getInputFieldDecoration(label: label, hint: hint, colorScheme: colorScheme),
       validator: (value) {
+        if (isOptional) return null;
         if (value == null || value.isEmpty) {
           return 'Please enter $label';
         }

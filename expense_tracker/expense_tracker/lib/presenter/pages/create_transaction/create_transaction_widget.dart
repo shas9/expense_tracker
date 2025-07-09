@@ -1,15 +1,10 @@
-import 'package:expense_tracker/common/custom_widget_component/custom_decoration.dart';
-import 'package:expense_tracker/common/widgets/custom_date_picker.dart';
-import 'package:expense_tracker/common/widgets/primary_button_widget.dart';
-import 'package:expense_tracker/common/widgets/primary_dropdown_widget.dart';
-import 'package:expense_tracker/common/widgets/primary_text_field.dart';
-import 'package:expense_tracker/data/model/ui_model/common/category_ui_model.dart';
-import 'package:expense_tracker/data/model/ui_model/common/wallet_ui_model.dart';
 import 'package:expense_tracker/data/model/ui_model/create_transaction/create_transaction_ui_model.dart';
 import 'package:expense_tracker/presenter/pages/create_transaction/bloc/create_transaction_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kiwi/kiwi.dart';
+
+import 'section/create_transaction_form.dart';
 
 class CreateTransactionWidget extends StatefulWidget {
   final int? walletId;
@@ -25,186 +20,147 @@ class CreateTransactionWidget extends StatefulWidget {
 }
 
 class _CreateTransactionWidgetState extends State<CreateTransactionWidget> {
-  final CreateTransactionUiModel _uiModel = CreateTransactionUiModel();
-
-  final CreateTransactionBloc _bloc =
-      KiwiContainer().resolve<CreateTransactionBloc>();
+  late final CreateTransactionUiModel _uiModel;
+  late final CreateTransactionBloc _bloc;
 
   @override
   void initState() {
-    _bloc.add(CreateTransactionInitEvent(walletId: widget.walletId));
     super.initState();
+    _initializeDependencies();
+    _initializeTransaction();
+  }
+
+  void _initializeDependencies() {
+    _uiModel = CreateTransactionUiModel();
+    _bloc = KiwiContainer().resolve<CreateTransactionBloc>();
+  }
+
+  void _initializeTransaction() {
+    _bloc.add(CreateTransactionInitEvent(walletId: widget.walletId));
   }
 
   @override
   void dispose() {
-    _uiModel.titleController.dispose();
-    _uiModel.amountController.dispose();
-    _uiModel.descriptionController.dispose();
+    _uiModel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CreateTransactionBloc, CreateTransactionState>(
-      bloc: _bloc,
-      listenWhen: (previous, current) =>
-          current is CreateTransactionActionState,
-      buildWhen: (previous, current) =>
-          current is! CreateTransactionActionState,
-      listener: (context, state) {
-        if (state is CategoryListLoadedState) {
-          setState(() {
-            _uiModel.categories = state.categoryUiModelList;
-          });
-        } else if (state is WalletListLoadedState) {
-          setState(() {
-            _uiModel.wallets = state.walletUiModelList;
-          });
-        } else if (state is SelectedWalletLoadedState) {
-          setState(() {
-            _uiModel.selectedWallet = state.selectedWallet;
-          });
-        } else if (state is CreateTransactionSuccess) {
-          Navigator.pop(context);
-        } else if (state is CreateTransactionFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error)),
-          );
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Add Transaction'),
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _uiModel.formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    PrimaryTextField(
-                      controller: _uiModel.titleController,
-                      label: 'Title',
-                      hint: 'Title',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildWalletDropdown(),
-                    const SizedBox(height: 16),
-                    PrimaryTextField(
-                      controller: _uiModel.amountController,
-                      label: 'Amount',
-                      hint: 'Amount',
-                      isNumber: true,
-                    ),
-                    const SizedBox(height: 16),
-                    PrimaryTextField(
-                      controller: _uiModel.descriptionController,
-                      label: 'Description',
-                      hint: 'Description',
-                    ),
-                    const SizedBox(height: 16),
-                    _buildDatePicker(),
-                    const SizedBox(height: 16),
-                    _buildCategoryDropdown(),
-                    const SizedBox(height: 24),
-                    PrimaryButtonWidget(
-                      label: 'Add Expense',
-                      onPressed: _submitForm,
-                    ),
-                  ],
-                ),
-              ),
+    return BlocProvider.value(
+      value: _bloc,
+      child: BlocConsumer<CreateTransactionBloc, CreateTransactionState>(
+        listenWhen: (previous, current) =>
+            current is CreateTransactionActionState,
+        buildWhen: (previous, current) =>
+            current is! CreateTransactionActionState,
+        listener: _handleBlocListener,
+        builder: (context, state) {
+          return Scaffold(
+            appBar: _buildAppBar(),
+            body: CreateTransactionForm(
+              uiModel: _uiModel,
+              onTransactionTypeChanged: _onTransactionTypeChanged,
+              onSubmit: _handleFormSubmission,
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildDatePicker() {
-    return InkWell(
-      onTap: _showDatePicker,
-      child: InputDecorator(
-        decoration: CustomDecoration.getInputFieldDecoration(
-          label: 'Date',
-          hint: '',
-          colorScheme: Theme.of(context).colorScheme,
-        ),
-        child: Text(
-          _uiModel.formattedSelectedDate(context),
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 16,
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildWalletDropdown() {
-    return PrimaryDropdownWidgetExtension.wallet(
-      value: _uiModel.selectedWallet,
-      wallets: _uiModel.wallets,
-      colorScheme: Theme.of(context).colorScheme,
-      onChanged: (WalletUiModel? value) {
-        if (value == null) return;
-        setState(() {
-          _uiModel.selectedWallet = value;
-        });
-      },
-    );
-  }
-
-// Replace _buildCategoryDropdown() with:
-  Widget _buildCategoryDropdown() {
-    return PrimaryDropdownWidgetExtension.category(
-      value: _uiModel.selectedCategory,
-      categories: _uiModel.categories,
-      colorScheme: Theme.of(context).colorScheme,
-      onChanged: (CategoryUiModel? value) {
-        if (value == null) return;
-        setState(() {
-          _uiModel.selectedCategory = value;
-        });
-      },
-    );
-  }
-
-  Future<void> _showDatePicker() async {
-    final DateTime? picked = await CustomDatePicker.show(
-      context: context,
-      initialDateTime: _uiModel.selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
-    );
-
-    if (picked != null && picked != _uiModel.selectedDate) {
-      setState(() {
-        _uiModel.selectedDate = picked;
-      });
+  void _handleBlocListener(BuildContext context, CreateTransactionState state) {
+    if (state is CategoryListLoadedState) {
+      _uiModel.updateCategories(state.categoryUiModelList);
+    } else if (state is WalletListLoadedState) {
+      _uiModel.updateWallets(state.walletUiModelList);
+    } else if (state is SelectedWalletLoadedState) {
+      _uiModel.updateSelectedWallet(state.selectedWallet);
+    } else if (state is CreateTransactionSuccess) {
+      _handleTransactionSuccess();
+    } else if (state is CreateTransactionFailure) {
+      _handleTransactionFailure(state.error);
     }
   }
 
-  void _submitForm() {
-    if (_uiModel.formKey.currentState!.validate() &&
-        _uiModel.selectedCategory != null) {
-      final amount = double.parse(_uiModel.amountController.text);
-      final description = _uiModel.descriptionController.text;
-      final title = _uiModel.titleController.text;
+  void _onTransactionTypeChanged(TransactionType type) {
+    setState(() {
+      _uiModel.selectedTransactionType = type;
+    });
+  }
 
-      _bloc.add(SubmitTransactionEvent(
-        title: title,
-        amount: amount,
-        description: description,
-        date: _uiModel.selectedDate,
-        categoryUiModel: _uiModel.selectedCategory!,
-        walletId: _uiModel.selectedWallet!.id,
-        isIncome: false,
-      ));
+  void _handleTransactionSuccess() {
+    if (mounted) {
+      Navigator.pop(context);
     }
+  }
+
+  void _handleTransactionFailure(String error) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text(appBarTitle),
+      centerTitle: true,
+    );
+  }
+
+  String get appBarTitle {
+    return switch (_uiModel.selectedTransactionType) {
+      TransactionType.expense => 'Add Expense',
+      TransactionType.income => 'Add Income',
+      TransactionType.transfer => 'Transfer Money',
+    };
+  }
+
+  void _handleFormSubmission() {
+    final amount = double.parse(_uiModel.amountController.text);
+    final description = _uiModel.descriptionController.text.trim();
+    final title = _uiModel.titleController.text.trim();
+
+    if (_uiModel.selectedTransactionType == TransactionType.transfer) {
+      _submitTransferTransaction(title, amount, description);
+    } else {
+      _submitIncomeExpenseTransaction(title, amount, description);
+    }
+  }
+
+  void _submitIncomeExpenseTransaction(
+    String title,
+    double amount,
+    String description,
+  ) {
+    _bloc.add(SubmitTransactionEvent(
+      title: title,
+      amount: amount,
+      description: description,
+      date: _uiModel.selectedDate,
+      categoryUiModel: _uiModel.selectedCategory!,
+      walletId: _uiModel.selectedWallet!.id,
+      isIncome: _uiModel.selectedTransactionType == TransactionType.income,
+    ));
+  }
+
+  void _submitTransferTransaction(
+    String title,
+    double amount,
+    String description,
+  ) {
+    _bloc.add(SubmitTransferEvent(
+      title: title,
+      amount: amount,
+      description: description,
+      date: _uiModel.selectedDate,
+      fromWalletId: _uiModel.selectedFromWallet!.id,
+      toWalletId: _uiModel.selectedToWallet!.id,
+    ));
   }
 }

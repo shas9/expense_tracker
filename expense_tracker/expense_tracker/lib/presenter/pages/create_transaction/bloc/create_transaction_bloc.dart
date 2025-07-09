@@ -17,6 +17,7 @@ class CreateTransactionBloc extends Bloc<CreateTransactionEvent, CreateTransacti
   CreateTransactionBloc() : super(CreateTransactionInitial()) {
     on<CreateTransactionInitEvent>(onCreateExpenseInitEvent);
     on<SubmitTransactionEvent>(onSubmitExpense);
+    on<SubmitTransferEvent>(onSubmitTransfer);
   }
 
   Future<void> onCreateExpenseInitEvent(
@@ -55,10 +56,32 @@ class CreateTransactionBloc extends Bloc<CreateTransactionEvent, CreateTransacti
         event.isIncome,
       );
 
-      final wallet = await _walletRepository.getWalletById(event.walletId);
-      if (wallet != null) {
-        _walletRepository.updateWalletBalance(wallet.id, -event.amount);
-      }
+      _walletRepository.updateWalletBalance(event.walletId, -event.amount);
+
+      emit(CreateTransactionSuccess());
+    } catch (e) {
+      emit(CreateTransactionFailure(e.toString()));
+    }
+  }
+
+  Future<void> onSubmitTransfer(
+    SubmitTransferEvent event,
+    Emitter<CreateTransactionState> emit,
+  ) async {
+    emit(CreateExpenseLoading());
+    try {
+      // _transactionRepository.addTransaction(
+      //   event.title,
+      //   event.amount,
+      //   event.description,
+      //   event.date,
+      //   event.categoryUiModel.categoryId,
+      //   event.walletId,
+      //   event.isIncome,
+      // );
+
+      _walletRepository.updateWalletBalance(event.fromWalletId, -event.amount);
+      _walletRepository.updateWalletBalance(event.toWalletId, event.amount);
 
       emit(CreateTransactionSuccess());
     } catch (e) {
